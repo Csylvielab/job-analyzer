@@ -93,6 +93,17 @@ interface ErrorDetails {
 type ViewMode = 'input' | 'compare' | 'evaluate' | 'optimize';
 type UiState = 'input' | 'generating' | 'result';
 
+// Custom list item component to hide bullet for specific headers
+const CustomListItem = ({ children, ...props }: any) => {
+  const text = String(children);
+  const isSectionHeader = text.includes('【来源/置信度】') || text.includes('【分析】');
+  return (
+    <li {...props} className={isSectionHeader ? 'section-header' : ''}>
+      {children}
+    </li>
+  );
+};
+
 export default function Home() {
   const [input, setInput] = useState('');
   const [content, setContent] = useState('');
@@ -1290,7 +1301,7 @@ export default function Home() {
                 {/* Compare Result */}
                 {viewMode === 'compare' && compareContent && (
                   <div className="report-content text-[15px]">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{compareContent}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ li: CustomListItem }}>{compareContent}</ReactMarkdown>
                   </div>
                 )}
 
@@ -1429,7 +1440,7 @@ export default function Home() {
                       </div>
                     )}
                     <div className="report-content text-[15px]">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{evaluateContent}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ li: CustomListItem }}>{evaluateContent}</ReactMarkdown>
                     </div>
                   </div>
                 )}
@@ -1457,7 +1468,7 @@ export default function Home() {
                 {/* Resume Optimization Result */}
                 {viewMode === 'optimize' && optimizeContent && (
                   <div className="report-content text-[15px]">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{optimizeContent}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ li: CustomListItem }}>{optimizeContent}</ReactMarkdown>
                   </div>
                 )}
 
@@ -1556,7 +1567,7 @@ export default function Home() {
 
                 {viewMode === 'input' && content && (
                   <div className="report-content text-[15px]">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ li: CustomListItem }}>{content}</ReactMarkdown>
                   </div>
                 )}
 
