@@ -172,6 +172,10 @@ export async function POST(req: Request) {
         const infoChunk = `🔍 已识别信息\n公司名称：${company}\n岗位名称：${position}${missingFields.includes('岗位描述') ? '\n⚠️ 未识别到详细岗位描述，将基于岗位名称进行分析' : ''}\n\n---\n\n`;
         controller.enqueue(encoder.encode(infoChunk));
 
+        // 发送免责声明
+        const disclaimerChunk = `> ⚠️ **信息准确性声明**：本报告基于 AI 分析和公开信息生成，可能存在同名公司混淆、信息过时或偏差等问题。建议面试前通过官方渠道核实公司信息。\n\n`;
+        controller.enqueue(encoder.encode(disclaimerChunk));
+
         // 调用 AI 生成分析报告
         const result = await streamText({
           model: deepseek('deepseek-chat'),
