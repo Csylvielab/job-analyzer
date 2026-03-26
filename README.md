@@ -4,7 +4,7 @@
 
 AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
 
-![预览图](./screenshot.png)
+<img width="2954" height="1390" alt="image" src="https://github.com/user-attachments/assets/fb75f667-a694-4911-aa92-0295af78f4ff" />
 
 ## ✨ 功能特点
 
