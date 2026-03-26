@@ -581,6 +581,27 @@
   font-size: 1.2rem;
 }
 
+/* Hide bullet for section headers like 【来源/置信度】 */
+.report-content li:has(strong:first-child)::before,
+.report-content li:has(em:first-child)::before {
+  display: none;
+}
+
+/* Style section headers */
+.report-content li:has(strong:first-child),
+.report-content li:has(em:first-child) {
+  background: transparent;
+  padding-left: 0.5rem;
+  font-size: 1.05rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.report-content li:has(strong:first-child):hover,
+.report-content li:has(em:first-child):hover {
+  background: transparent;
+  transform: none;
+}
+
 .report-content ol {
   counter-reset: item;
 }
