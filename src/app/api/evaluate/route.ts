@@ -1,11 +1,20 @@
 import { streamText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 
 // 创建 DeepSeek provider
-function getDeepSeekProvider(apiKey: string) {
-  return createDeepSeek({
-    apiKey: apiKey || process.env.DEEPSEEK_API_KEY || '',
-  });
+function getAIProvider(apiKey: string, provider: string) {
+  const key = apiKey || '';
+  switch (provider) {
+    case 'openai':
+      return createOpenAI({ apiKey: key || process.env.OPENAI_API_KEY || '' });
+    case 'anthropic':
+      return createAnthropic({ apiKey: key || process.env.ANTHROPIC_API_KEY || '' });
+    case 'deepseek':
+    default:
+      return createDeepSeek({ apiKey: key || process.env.DEEPSEEK_API_KEY || '' });
+  }
 }
 
 // 构建简历评估 prompt
@@ -86,6 +95,7 @@ export async function POST(req: Request) {
   try {
     // 获取 API Key from header
     const apiKey = req.headers.get('X-API-Key') || '';
+    const aiProvider = req.headers.get('X-AI-Provider') || 'deepseek';
     // 获取用户输入
     const { resume, jobText } = await req.json();
 
@@ -121,13 +131,27 @@ export async function POST(req: Request) {
       jd: jobText,
     });
 
+    // 选择模型
+    const model = (() => {
+      const provider = getAIProvider(apiKey, aiProvider);
+      switch (aiProvider) {
+        case 'openai':
+          return provider('gpt-4');
+        case 'anthropic':
+          return provider('claude-3-sonnet-20240229');
+        case 'deepseek':
+        default:
+          return provider('deepseek-chat');
+      }
+    })();
+
     // 流式返回评估结果
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         // 调用 AI 生成评估报告
         const result = await streamText({
-          model: getDeepSeekProvider(apiKey)('deepseek-chat'),
+          model,
           system: EVALUATE_SYSTEM_PROMPT,
           prompt: userPrompt,
           temperature: 0.7,

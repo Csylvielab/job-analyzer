@@ -135,6 +135,10 @@ export default function Home() {
   }, [showSettingsDialog]);
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
+  // AI Provider state
+  type AIProvider = 'deepseek' | 'openai' | 'anthropic';
+  const [aiProvider, setAiProvider] = useState<AIProvider>('deepseek');
+  const [aiProviderInput, setAiProviderInput] = useState<AIProvider>('deepseek');
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { records, addRecord, toggleApplied, toggleAllApplied, deleteRecord, stats, loaded } = useJobRecords();
@@ -150,11 +154,15 @@ export default function Home() {
     );
   });
 
-  // Load API Key from localStorage on mount
+  // Load API settings from localStorage on mount
   useEffect(() => {
     const savedKey = localStorage.getItem("jobanalyzer_api_key");
+    const savedProvider = localStorage.getItem("jobanalyzer_ai_provider") as AIProvider;
     if (savedKey) {
       setApiKey(savedKey);
+    }
+    if (savedProvider) {
+      setAiProvider(savedProvider);
     }
   }, []);
 
@@ -244,7 +252,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({
           jobs: selectedJobs.map(j => ({
             company: j.company,
@@ -312,7 +320,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -406,7 +414,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -470,7 +478,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ text: input }),
         signal: abortControllerRef.current.signal,
       });
@@ -761,8 +769,8 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <button onClick={() => { 
-                  console.log('Settings button clicked'); 
                   setApiKeyInput(apiKey); 
+                  setAiProviderInput(aiProvider);
                   setShowSettingsDialog(true); 
                 }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
                 <Settings className="h-5 w-5" strokeWidth={1.5} />
