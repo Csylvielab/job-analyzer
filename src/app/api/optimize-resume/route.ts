@@ -2,6 +2,8 @@ import { streamText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createMoonshotAI } from '@ai-sdk/moonshotai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 // 创建 DeepSeek provider
 function getAIProvider(apiKey: string, provider: string) {
@@ -11,6 +13,10 @@ function getAIProvider(apiKey: string, provider: string) {
       return createOpenAI({ apiKey: key || process.env.OPENAI_API_KEY || '' });
     case 'anthropic':
       return createAnthropic({ apiKey: key || process.env.ANTHROPIC_API_KEY || '' });
+    case 'moonshot':
+      return createMoonshotAI({ apiKey: key || process.env.MOONSHOT_API_KEY || '' });
+    case 'gemini':
+      return createGoogleGenerativeAI({ apiKey: key || process.env.GEMINI_API_KEY || '' });
     case 'deepseek':
     default:
       return createDeepSeek({ apiKey: key || process.env.DEEPSEEK_API_KEY || '' });
@@ -138,6 +144,10 @@ export async function POST(req: Request) {
             return provider('gpt-4');
           case 'anthropic':
             return provider('claude-3-sonnet-20240229');
+          case 'moonshot':
+            return provider('moonshot-v1-8k');
+          case 'gemini':
+            return provider('gemini-1.5-pro');
           case 'deepseek':
           default:
             return provider('deepseek-chat');

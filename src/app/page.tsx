@@ -136,7 +136,7 @@ export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
   // AI Provider state
-  type AIProvider = 'deepseek' | 'openai' | 'anthropic';
+  type AIProvider = 'deepseek' | 'openai' | 'anthropic' | 'moonshot' | 'gemini';
   const [aiProvider, setAiProvider] = useState<AIProvider>('deepseek');
   const [aiProviderInput, setAiProviderInput] = useState<AIProvider>('deepseek');
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1602,8 +1602,8 @@ export default function Home() {
               {/* AI Provider Selection */}
               <div>
                 <label className="text-sm font-medium block mb-1.5">AI 提供商</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['deepseek', 'openai', 'anthropic'] as AIProvider[]).map((provider) => (
+                <div className="grid grid-cols-5 gap-2">
+                  {(['deepseek', 'openai', 'anthropic', 'moonshot', 'gemini'] as AIProvider[]).map((provider) => (
                     <button
                       key={provider}
                       onClick={() => setAiProviderInput(provider)}
@@ -1616,6 +1616,8 @@ export default function Home() {
                       {provider === 'deepseek' && 'DeepSeek'}
                       {provider === 'openai' && 'OpenAI'}
                       {provider === 'anthropic' && 'Claude'}
+                      {provider === 'moonshot' && 'Moonshot'}
+                      {provider === 'gemini' && 'Gemini'}
                     </button>
                   ))}
                 </div>
@@ -1627,13 +1629,17 @@ export default function Home() {
                   {aiProviderInput === 'deepseek' && 'DeepSeek API Key'}
                   {aiProviderInput === 'openai' && 'OpenAI API Key'}
                   {aiProviderInput === 'anthropic' && 'Anthropic API Key'}
+                  {aiProviderInput === 'moonshot' && 'Moonshot API Key'}
+                  {aiProviderInput === 'gemini' && 'Gemini API Key'}
                 </label>
                 <Input
                   type="password"
                   placeholder={
                     aiProviderInput === 'deepseek' ? 'sk-...' :
                     aiProviderInput === 'openai' ? 'sk-...' :
-                    'sk-ant-...'
+                    aiProviderInput === 'anthropic' ? 'sk-ant-...' :
+                    aiProviderInput === 'moonshot' ? 'sk-...' :
+                    'AIza...'
                   }
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
@@ -1653,6 +1659,16 @@ export default function Home() {
                   {aiProviderInput === 'anthropic' && (
                     <>
                       没有 API Key？前往 <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Anthropic Console</a> 获取
+                    </>
+                  )}
+                  {aiProviderInput === 'moonshot' && (
+                    <>
+                      没有 API Key？前往 <a href="https://platform.moonshot.cn/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Moonshot 开放平台</a> 获取
+                    </>
+                  )}
+                  {aiProviderInput === 'gemini' && (
+                    <>
+                      没有 API Key？前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google AI Studio</a> 获取
                     </>
                   )}
                 </p>
