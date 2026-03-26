@@ -1584,9 +1584,8 @@ export default function Home() {
       </main>
 
       {/* Settings Dialog */}
-      {/* Simple Settings Modal */}
       {showSettingsDialog && (
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
           onClick={(e) => {
             if (e.target === e.currentTarget) setShowSettingsDialog(false);
@@ -1597,24 +1596,69 @@ export default function Home() {
               <Key className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">API 设置</h2>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">配置你的 DeepSeek API Key 以使用 AI 分析功能</p>
-            
+            <p className="text-sm text-muted-foreground mb-4">选择 AI 提供商并配置 API Key</p>
+
             <div className="space-y-4">
+              {/* AI Provider Selection */}
               <div>
-                <label className="text-sm font-medium block mb-1.5">DeepSeek API Key</label>
+                <label className="text-sm font-medium block mb-1.5">AI 提供商</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['deepseek', 'openai', 'anthropic'] as AIProvider[]).map((provider) => (
+                    <button
+                      key={provider}
+                      onClick={() => setAiProviderInput(provider)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        aiProviderInput === provider
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground hover:bg-accent'
+                      }`}
+                    >
+                      {provider === 'deepseek' && 'DeepSeek'}
+                      {provider === 'openai' && 'OpenAI'}
+                      {provider === 'anthropic' && 'Claude'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* API Key Input */}
+              <div>
+                <label className="text-sm font-medium block mb-1.5">
+                  {aiProviderInput === 'deepseek' && 'DeepSeek API Key'}
+                  {aiProviderInput === 'openai' && 'OpenAI API Key'}
+                  {aiProviderInput === 'anthropic' && 'Anthropic API Key'}
+                </label>
                 <Input
                   type="password"
-                  placeholder="sk-..."
+                  placeholder={
+                    aiProviderInput === 'deepseek' ? 'sk-...' :
+                    aiProviderInput === 'openai' ? 'sk-...' :
+                    'sk-ant-...'
+                  }
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground mt-1.5">
-                  没有 API Key？前往 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DeepSeek 开放平台</a> 免费申请
+                  {aiProviderInput === 'deepseek' && (
+                    <>
+                      没有 API Key？前往 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DeepSeek 开放平台</a> 免费申请
+                    </>
+                  )}
+                  {aiProviderInput === 'openai' && (
+                    <>
+                      没有 API Key？前往 <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">OpenAI Platform</a> 获取
+                    </>
+                  )}
+                  {aiProviderInput === 'anthropic' && (
+                    <>
+                      没有 API Key？前往 <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Anthropic Console</a> 获取
+                    </>
+                  )}
                 </p>
               </div>
-              
-              <div className="flex gap-2">
+
+              <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
                   className="flex-1"
@@ -1626,7 +1670,9 @@ export default function Home() {
                   className="flex-1"
                   onClick={() => {
                     setApiKey(apiKeyInput);
+                    setAiProvider(aiProviderInput);
                     localStorage.setItem("jobanalyzer_api_key", apiKeyInput);
+                    localStorage.setItem("jobanalyzer_ai_provider", aiProviderInput);
                     setShowSettingsDialog(false);
                   }}
                 >
