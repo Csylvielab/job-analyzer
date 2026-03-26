@@ -1564,7 +1564,9 @@ export default function Home() {
           </div>
         </div>
       )}
+      </main>
 
+      {/* Settings Dialog */}
       {/* Settings Dialog */}
       <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
         <DialogContent className="sm:max-w-md">
@@ -1613,7 +1615,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-      </main>
     </div>
   );
 }
