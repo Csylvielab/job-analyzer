@@ -128,6 +128,11 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Settings dialog and API Key state
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  
+  // Debug: log state changes
+  useEffect(() => {
+    console.log('Settings dialog state:', showSettingsDialog);
+  }, [showSettingsDialog]);
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -755,7 +760,11 @@ export default function Home() {
             {/* Right: Theme Toggle & Settings & Avatar */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <button onClick={() => { setApiKeyInput(apiKey); setShowSettingsDialog(true); }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
+              <button onClick={() => { 
+                  console.log('Settings button clicked'); 
+                  setApiKeyInput(apiKey); 
+                  setShowSettingsDialog(true); 
+                }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
                 <Settings className="h-5 w-5" strokeWidth={1.5} />
                 {apiKey && <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-emerald-500 rounded-full"></span>}
               </button>
@@ -1567,54 +1576,59 @@ export default function Home() {
       </main>
 
       {/* Settings Dialog */}
-      {/* Settings Dialog */}
-      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Simple Settings Modal */}
+      {showSettingsDialog && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowSettingsDialog(false);
+          }}
+        >
+          <div className="bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-xl">
+            <div className="flex items-center gap-2 mb-2">
               <Key className="h-5 w-5 text-primary" />
-              API 设置
-            </DialogTitle>
-            <DialogDescription>
-              配置你的 DeepSeek API Key 以使用 AI 分析功能
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">DeepSeek API Key</label>
-              <Input
-                type="password"
-                placeholder="sk-..."
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground">
-                没有 API Key？前往 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DeepSeek 开放平台</a> 免费申请
-              </p>
+              <h2 className="text-lg font-semibold">API 设置</h2>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setShowSettingsDialog(false)}
-              >
-                取消
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  setApiKey(apiKeyInput);
-                  localStorage.setItem("jobanalyzer_api_key", apiKeyInput);
-                  setShowSettingsDialog(false);
-                }}
-              >
-                保存
-              </Button>
+            <p className="text-sm text-muted-foreground mb-4">配置你的 DeepSeek API Key 以使用 AI 分析功能</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium block mb-1.5">DeepSeek API Key</label>
+                <Input
+                  type="password"
+                  placeholder="sk-..."
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  className="font-mono"
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  没有 API Key？前往 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DeepSeek 开放平台</a> 免费申请
+                </p>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowSettingsDialog(false)}
+                >
+                  取消
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => {
+                    setApiKey(apiKeyInput);
+                    localStorage.setItem("jobanalyzer_api_key", apiKeyInput);
+                    setShowSettingsDialog(false);
+                  }}
+                >
+                  保存
+                </Button>
+              </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }
