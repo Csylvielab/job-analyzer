@@ -1,6 +1,6 @@
 # JobInsight AI - 智能求职分析平台
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer&env=DEEPSEEK_API_KEY&envDescription=AI%20API%20Key%20for%20analysis&envLink=https%3A%2F%2Fplatform.deepseek.com%2F)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer)
 
 AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
 
@@ -41,8 +41,8 @@ AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位�
 点击上方 "Deploy with Vercel" 按钮，按提示完成部署：
 
 1. Fork 本仓库
-2. 在 Vercel 中配置 `DEEPSEEK_API_KEY` 环境变量
-3. 部署完成即可使用
+2. 在 Vercel 中部署
+3. 部署完成后在网页上点击「设置」配置 AI 提供商和 API Key
 
 ### 方式二：本地开发
 
@@ -54,26 +54,26 @@ cd job-analyzer
 # 2. 安装依赖
 npm install
 
-# 3. 配置环境变量
-cp .env.example .env.local
-# 编辑 .env.local，添加你的 DeepSeek API Key
-
-# 4. 启动开发服务器
+# 3. 启动开发服务器
 npm run dev
 
-# 5. 访问 http://localhost:3000
+# 4. 访问 http://localhost:3000
+# 5. 点击右上角「设置」选择 AI 提供商并配置 API Key
 ```
 
-## 🔑 获取 API Key
+## 🔑 支持的 AI 提供商
 
-本项目使用 DeepSeek API 进行 AI 分析：
+本项目支持多个 AI 提供商，你可以在网页设置中自由选择：
 
-1. 访问 [DeepSeek 开放平台](https://platform.deepseek.com/)
-2. 注册账号
-3. 创建 API Key
-4. 将 Key 配置到环境变量
+| 提供商 | 模型 | 获取 API Key |
+|--------|------|-------------|
+| **DeepSeek** | deepseek-chat | [platform.deepseek.com](https://platform.deepseek.com/) |
+| **OpenAI** | GPT-4 | [platform.openai.com](https://platform.openai.com/api-keys) |
+| **Claude** | claude-3-sonnet | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+| **Moonshot** | moonshot-v1-8k | [platform.moonshot.cn](https://platform.moonshot.cn/) |
+| **Gemini** | gemini-1.5-pro | [Google AI Studio](https://aistudio.google.com/app/apikey) |
 
-> 新用户有免费额度，足够体验和开发使用
+> 💡 **提示**：大多数提供商都有免费额度，足够日常使用。在网页上点击「设置」即可随时切换提供商。
 
 ## 📁 项目结构
 
@@ -102,7 +102,7 @@ job-analyzer/
 
 - **框架**: [Next.js 16](https://nextjs.org/) + [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **样式**: [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-- **AI**: [DeepSeek API](https://platform.deepseek.com/) via [Vercel AI SDK](https://sdk.vercel.ai/)
+- **AI**: 支持 DeepSeek, OpenAI, Claude, Moonshot, Gemini via [Vercel AI SDK](https://sdk.vercel.ai/)
 - **图表**: [Recharts](https://recharts.org/)
 - **文档解析**: [Mammoth](https://github.com/mwilliamson/mammoth.js)
 
@@ -117,16 +117,16 @@ job-analyzer/
 - [Tavily](https://tavily.com/)
 - [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api)
 
-### 切换 AI 模型
+### 切换 AI 提供商
 
-支持替换为其他兼容 OpenAI 接口的模型：
+无需修改代码，直接在网页上切换：
 
-```typescript
-// src/app/api/analyze/route.ts
-import { openai } from '@ai-sdk/openai';
+1. 点击右上角 **⚙️ 设置** 按钮
+2. 选择你喜欢的 AI 提供商（DeepSeek / OpenAI / Claude / Moonshot / Gemini）
+3. 输入对应的 API Key
+4. 点击保存即可使用
 
-const model = openai('gpt-4');
-```
+API Key 和提供商偏好会保存在浏览器本地存储中，切换时自动生效。
 
 ## 📸 截图
 
