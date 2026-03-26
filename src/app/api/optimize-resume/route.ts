@@ -2,9 +2,11 @@ import { streamText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 
 // 创建 DeepSeek provider
-const deepseek = createDeepSeek({
-  apiKey: process.env.DEEPSEEK_API_KEY ?? '',
-});
+function getDeepSeekProvider(apiKey: string) {
+  return createDeepSeek({
+    apiKey: apiKey || process.env.DEEPSEEK_API_KEY || '',
+  });
+}
 
 // 简历优化系统 prompt
 const OPTIMIZE_SYSTEM_PROMPT = `你是一位资深的职业顾问和简历优化专家，拥有超过15年的求职辅导经验。
@@ -91,6 +93,7 @@ ${resume}
 
 export async function POST(req: Request) {
   try {
+    const apiKey = req.headers.get('X-API-Key') || '';
     const { resume, jobText } = await req.json();
 
     if (!resume || !resume.trim()) {
@@ -118,7 +121,7 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         const result = await streamText({
-          model: deepseek('deepseek-chat'),
+          model: getDeepSeekProvider(apiKey)('deepseek-chat'),
           system: OPTIMIZE_SYSTEM_PROMPT,
           prompt: userPrompt,
           temperature: 0.7,

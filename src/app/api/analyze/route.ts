@@ -3,10 +3,12 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { mockSearch } from '@/lib/search';
 import { SYSTEM_PROMPT, PARSER_SYSTEM_PROMPT, buildUserPrompt } from '@/lib/prompts';
 
-// 创建 DeepSeek provider
-const deepseek = createDeepSeek({
-  apiKey: process.env.DEEPSEEK_API_KEY ?? '',
-});
+// 创建 DeepSeek provider (API Key from request header)
+function getDeepSeekProvider(apiKey: string) {
+  return createDeepSeek({
+    apiKey: apiKey || process.env.DEEPSEEK_API_KEY || '',
+  });
+}
 
 // 常见的省份和城市名，需要过滤掉
 const LOCATION_NAMES = new Set([
@@ -39,7 +41,7 @@ function validateCompanyName(company: string): string {
 }
 
 // 解析用户输入
-async function parseUserInput(rawText: string): Promise<{
+async function parseUserInput(rawText: string, apiKey: string): Promise<{
   company: string;
   position: string;
   jd: string;
@@ -47,7 +49,7 @@ async function parseUserInput(rawText: string): Promise<{
   confidence: 'high' | 'medium' | 'low';
 }> {
   const { text } = await generateText({
-    model: deepseek('deepseek-chat'),
+    model: getDeepSeekProvider(apiKey)('deepseek-chat'),
     system: PARSER_SYSTEM_PROMPT,
     prompt: `请从以下文本中提取公司和岗位信息：\n\n${rawText}`,
     temperature: 0.1,
@@ -114,6 +116,8 @@ async function parseUserInput(rawText: string): Promise<{
 
 export async function POST(req: Request) {
   try {
+    // 获取 API Key from header
+    const apiKey = req.headers.get('X-API-Key') || '';
     // 获取用户输入
     const { text: rawText } = await req.json();
 
@@ -127,7 +131,7 @@ export async function POST(req: Request) {
     console.log('[API] 收到用户输入:', rawText.slice(0, 100) + '...');
 
     // 第一步：解析用户输入
-    const { company, position, jd, missingFields, confidence } = await parseUserInput(rawText);
+    const { company, position, jd, missingFields, confidence } = await parseUserInput(rawText, apiKey);
 
     console.log('[API] 解析结果:', { company, position, missingFields, confidence });
 
@@ -178,7 +182,7 @@ export async function POST(req: Request) {
 
         // 调用 AI 生成分析报告
         const result = await streamText({
-          model: deepseek('deepseek-chat'),
+          model: getDeepSeekProvider(apiKey)('deepseek-chat'),
           system: SYSTEM_PROMPT,
           prompt: userPrompt,
           temperature: 0.7,

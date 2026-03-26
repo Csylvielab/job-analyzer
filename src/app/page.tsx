@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ import {
   Plus,
   PenLine,
   AlertTriangle,
+  Key,
   Home as HomeIcon,
   Settings,
   User,
@@ -124,6 +126,10 @@ export default function Home() {
   const reportEndRef = useRef<HTMLDivElement>(null);
   const parsedInfoRef = useRef<{ company?: string; position?: string }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Settings dialog and API Key state
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [apiKeyInput, setApiKeyInput] = useState("");
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { records, addRecord, toggleApplied, toggleAllApplied, deleteRecord, stats, loaded } = useJobRecords();
@@ -138,6 +144,14 @@ export default function Home() {
       record.position.toLowerCase().includes(query)
     );
   });
+
+  // Load API Key from localStorage on mount
+  useEffect(() => {
+    const savedKey = localStorage.getItem("jobanalyzer_api_key");
+    if (savedKey) {
+      setApiKey(savedKey);
+    }
+  }, []);
 
   useEffect(() => {
     if (content && reportEndRef.current) {
@@ -225,7 +239,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
         body: JSON.stringify({
           jobs: selectedJobs.map(j => ({
             company: j.company,
@@ -293,7 +307,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -387,7 +401,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -451,7 +465,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '' },
         body: JSON.stringify({ text: input }),
         signal: abortControllerRef.current.signal,
       });
@@ -741,8 +755,9 @@ export default function Home() {
             {/* Right: Theme Toggle & Settings & Avatar */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <button className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
+              <button onClick={() => { setApiKeyInput(apiKey); setShowSettingsDialog(true); }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
                 <Settings className="h-5 w-5" strokeWidth={1.5} />
+                {apiKey && <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-emerald-500 rounded-full"></span>}
               </button>
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border border-primary/30">
                 <User className="h-4 w-4 text-primary" strokeWidth={1.5} />
@@ -1549,6 +1564,55 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Settings Dialog */}
+      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              API 设置
+            </DialogTitle>
+            <DialogDescription>
+              配置你的 DeepSeek API Key 以使用 AI 分析功能
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">DeepSeek API Key</label>
+              <Input
+                type="password"
+                placeholder="sk-..."
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                没有 API Key？前往 <a href="https://platform.deepseek.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">DeepSeek 开放平台</a> 免费申请
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowSettingsDialog(false)}
+              >
+                取消
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  setApiKey(apiKeyInput);
+                  localStorage.setItem("jobanalyzer_api_key", apiKeyInput);
+                  setShowSettingsDialog(false);
+                }}
+              >
+                保存
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       </main>
     </div>
   );

@@ -2,12 +2,15 @@ import { streamText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { COMPARE_SYSTEM_PROMPT, buildComparePrompt } from '@/lib/prompts';
 
-const deepseek = createDeepSeek({
-  apiKey: process.env.DEEPSEEK_API_KEY ?? '',
-});
+function getDeepSeekProvider(apiKey: string) {
+  return createDeepSeek({
+    apiKey: apiKey || process.env.DEEPSEEK_API_KEY || '',
+  });
+}
 
 export async function POST(req: Request) {
   try {
+    const apiKey = req.headers.get('X-API-Key') || '';
     const { jobs } = await req.json();
 
     if (!jobs || !Array.isArray(jobs) || jobs.length !== 2) {
@@ -30,7 +33,7 @@ export async function POST(req: Request) {
     const userPrompt = buildComparePrompt(jobs);
 
     const result = streamText({
-      model: deepseek('deepseek-chat'),
+      model: getDeepSeekProvider(apiKey)('deepseek-chat'),
       system: COMPARE_SYSTEM_PROMPT,
       prompt: userPrompt,
       temperature: 0.7,

@@ -2,9 +2,11 @@ import { streamText } from 'ai';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 
 // 创建 DeepSeek provider
-const deepseek = createDeepSeek({
-  apiKey: process.env.DEEPSEEK_API_KEY ?? '',
-});
+function getDeepSeekProvider(apiKey: string) {
+  return createDeepSeek({
+    apiKey: apiKey || process.env.DEEPSEEK_API_KEY || '',
+  });
+}
 
 // 构建简历评估 prompt
 function buildEvaluatePrompt(resume: string, jobInfo: {
@@ -82,6 +84,8 @@ const EVALUATE_SYSTEM_PROMPT = `你是一名拥有超过20年经验的资深招�
 
 export async function POST(req: Request) {
   try {
+    // 获取 API Key from header
+    const apiKey = req.headers.get('X-API-Key') || '';
     // 获取用户输入
     const { resume, jobText } = await req.json();
 
@@ -123,7 +127,7 @@ export async function POST(req: Request) {
       async start(controller) {
         // 调用 AI 生成评估报告
         const result = await streamText({
-          model: deepseek('deepseek-chat'),
+          model: getDeepSeekProvider(apiKey)('deepseek-chat'),
           system: EVALUATE_SYSTEM_PROMPT,
           prompt: userPrompt,
           temperature: 0.7,
