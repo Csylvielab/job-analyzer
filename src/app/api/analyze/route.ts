@@ -140,6 +140,18 @@ async function parseUserInput(rawText: string, apiKey: string, aiProvider: strin
   };
 }
 
+// CORS 预检请求处理
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key, X-AI-Provider',
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     // 获取 API Key and provider from header
@@ -240,7 +252,10 @@ export async function POST(req: Request) {
     });
 
     return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+      }
     });
   } catch (error) {
     console.error('Analysis error:', error);
