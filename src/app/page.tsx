@@ -151,10 +151,9 @@ export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
   // Search API state
-  type SearchProvider = 'none' | 'serpapi' | 'bing' | 'google';
+  type SearchProvider = 'none' | 'serpapi' | 'bing';
   const [searchApiType, setSearchApiType] = useState<SearchProvider>('none');
   const [searchApiKeyInput, setSearchApiKeyInput] = useState("");
-  const [searchApiCxInput, setSearchApiCxInput] = useState("");
   // AI Provider state
   type AIProvider = 'deepseek' | 'openai' | 'anthropic' | 'moonshot' | 'gemini' | 'perplexity';
   const [aiProvider, setAiProvider] = useState<AIProvider>('deepseek');
@@ -226,11 +225,6 @@ export default function Home() {
     const type = getSearchApiType();
     if (type === 'none') return '';
     return localStorage.getItem(`jobanalyzer_search_key_${type}`) || '';
-  };
-  const getSearchApiCx = () => {
-    const type = getSearchApiType();
-    if (type !== 'google') return '';
-    return localStorage.getItem(`jobanalyzer_search_key_${type}_cx`) || '';
   };
 
   useEffect(() => {
@@ -335,7 +329,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': getSearchApiCx() },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': '', },
         body: JSON.stringify({
           jobs: selectedJobs.map(j => ({
             company: j.company,
@@ -403,7 +397,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': getSearchApiCx() },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': '', },
         body: JSON.stringify({
           resume: resumeContent,
           jobText: jobText,
@@ -506,7 +500,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': getSearchApiCx() },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': '', },
         body: JSON.stringify({
           resume: resumeContent,
           jobText: jobText,
@@ -579,7 +573,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': getSearchApiCx() },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey(), 'X-Search-Api-Cx': '', },
         body: JSON.stringify({ text: input }),
         signal: abortControllerRef.current.signal,
       });
@@ -916,12 +910,8 @@ export default function Home() {
                   setSearchApiType(savedSearchType || 'none');
                   if (savedSearchType && savedSearchType !== 'none') {
                     setSearchApiKeyInput(localStorage.getItem(`jobanalyzer_search_key_${savedSearchType}`) || '');
-                    if (savedSearchType === 'google') {
-                      setSearchApiCxInput(localStorage.getItem(`jobanalyzer_search_key_${savedSearchType}_cx`) || '');
-                    }
                   } else {
                     setSearchApiKeyInput('');
-                    setSearchApiCxInput('');
                   }
                   setShowSettingsDialog(true);
                 }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
@@ -1866,7 +1856,7 @@ export default function Home() {
                     不配置则使用 Perplexity（推荐）或模拟数据。配置后 AI 分析将结合真实搜索结果。
                   </p>
                   <div className="flex gap-1 mb-2">
-                    {(['none', 'google', 'serpapi', 'bing'] as SearchProvider[]).map((type) => (
+                    {(['none', 'serpapi', 'bing'] as SearchProvider[]).map((type) => (
                       <button
                         key={type}
                         onClick={() => setSearchApiType(type)}
@@ -1877,38 +1867,23 @@ export default function Home() {
                         }`}
                       >
                         {type === 'none' && '不配置'}
-                        {type === 'google' && 'Google'}
                         {type === 'serpapi' && 'SerpAPI'}
                         {type === 'bing' && 'Bing'}
                       </button>
                     ))}
                   </div>
                   {searchApiType !== 'none' && (
-                    <>
-                      <Input
-                        type="password"
-                        placeholder={
-                          searchApiType === 'google' ? 'Google API Key (在 Google Cloud Console 获取)' :
-                          searchApiType === 'serpapi' ? 'SerpAPI Key (在 serpapi.com 获取)' :
-                          'Bing API Key (在 Azure 获取)'
-                        }
-                        value={searchApiKeyInput}
-                        onChange={(e) => setSearchApiKeyInput(e.target.value)}
-                        className="font-mono text-sm"
-                      />
-                      {searchApiType === 'google' && (
-                        <Input
-                          type="text"
-                          placeholder="Google Search Engine ID / cx (在 programmablesearchengine.google.com 创建获取)"
-                          value={searchApiCxInput}
-                          onChange={(e) => setSearchApiCxInput(e.target.value)}
-                          className="font-mono text-sm mt-2"
-                        />
-                      )}
-                    </>
+                    <Input
+                      type="password"
+                      placeholder={
+                        searchApiType === 'serpapi' ? 'SerpAPI Key (在 serpapi.com 获取)' : 'Bing API Key (在 Azure 获取)'
+                      }
+                      value={searchApiKeyInput}
+                      onChange={(e) => setSearchApiKeyInput(e.target.value)}
+                      className="font-mono text-sm"
+                    />
                   )}
                   <p className="text-xs text-muted-foreground mt-1">
-                    {searchApiType === 'google' && '免费 100次/天，需同时配置 API Key 和 Search Engine ID'}
                     {searchApiType === 'serpapi' && '免费 100次/月，推荐'}
                     {searchApiType === 'bing' && '免费 1000次/月'}
                   </p>
@@ -1942,9 +1917,6 @@ export default function Home() {
                     localStorage.setItem("jobanalyzer_search_type", searchApiType);
                     if (searchApiType !== 'none') {
                       localStorage.setItem(`jobanalyzer_search_key_${searchApiType}`, searchApiKeyInput);
-                      if (searchApiType === 'google') {
-                        localStorage.setItem(`jobanalyzer_search_key_google_cx`, searchApiCxInput);
-                      }
                     }
                     setShowSettingsDialog(false);
                   }}

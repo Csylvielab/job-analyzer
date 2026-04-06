@@ -1,7 +1,7 @@
 /**
  * 搜索服务
- * - 优先级：bing → google → serpapi → mock
- * - bing/google/serpapi 需要配置 API Key
+ * - 若传入了 searchApiKey，优先使用对应的搜索 API
+ * - 否则 fallback 到 Mock 假数据
  */
 
 export interface SearchResult {
@@ -9,43 +9,6 @@ export interface SearchResult {
   query: string;
   results: string[];
   sources: string[];
-}
-
-// 通过 Google Custom Search API 搜索（免费配额：100次/天）
-async function googleSearch(company: string, apiKey: string, cx: string): Promise<SearchResult[] | null> {
-  if (!apiKey || !cx) return null;
-
-  const queries = [
-    { q: `${company} 融资 投资`, category: '公司融资动态' },
-    { q: `${company} 裁员 口碑 脉脉`, category: '公司舆情' },
-    { q: `${company} 最新动态 业务`, category: '业务动态' },
-  ];
-
-  const results: SearchResult[] = [];
-
-  for (const { q, category } of queries) {
-    try {
-      const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(q)}&cx=${cx}&key=${apiKey}&num=5&hl=zh-CN`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.items && data.items.length > 0) {
-        const items = data.items.slice(0, 3).map((item: any) =>
-          `${item.title} - ${item.snippet}`
-        );
-        results.push({
-          category,
-          query: q,
-          results: items,
-          sources: data.items.slice(0, 3).map((item: any) => item.link),
-        });
-      }
-    } catch (e) {
-      console.error('Google search error:', e);
-    }
-  }
-
-  return results;
 }
 
 // 生成模拟搜索结果（当没有配置真实搜索 API 时使用）
@@ -168,27 +131,19 @@ async function bingSearch(company: string, apiKey: string): Promise<SearchResult
   return results.length > 0 ? results : serpapiSearch(company, '');
 }
 
-// 主入口：传入 searchApiType、searchApiKey 和 searchApiCx（cx 仅用于 Google）
+// 主入口：传入 searchApiType 和 searchApiKey（来自请求头）
 export async function mockSearch(
   company: string,
   searchApiType?: string,
-  searchApiKey?: string,
-  searchApiCx?: string
+  searchApiKey?: string
 ): Promise<SearchResult[]> {
-  if (searchApiType === 'google' && searchApiKey && searchApiCx) {
-    console.log('[Search] 使用 Google Custom Search API');
-    const results = await googleSearch(company, searchApiKey, searchApiCx);
-    return results && results.length > 0 ? results : mockSearchFallback(company);
-  }
   if (searchApiType === 'bing' && searchApiKey) {
     console.log('[Search] 使用 Bing Search API');
-    const results = await bingSearch(company, searchApiKey);
-    return results && results.length > 0 ? results : mockSearchFallback(company);
+    return bingSearch(company, searchApiKey);
   }
   if (searchApiType === 'serpapi' && searchApiKey) {
     console.log('[Search] 使用 SerpAPI');
-    const results = await serpapiSearch(company, searchApiKey);
-    return results && results.length > 0 ? results : mockSearchFallback(company);
+    return serpapiSearch(company, searchApiKey);
   }
   // 未配置或为 'none'，用 Mock
   console.log('[Search] 未配置搜索 API，使用 Mock 数据');
