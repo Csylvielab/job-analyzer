@@ -149,14 +149,6 @@ job-analyzer/
 
 API Key 按提供商独立保存，切换时自动加载对应 Key。
 
-## 📸 截图
-
-| 岗位分析 | 简历评估 | 简历优化 |
-|---------|---------|---------|
-| <img width="2783" height="1378" alt="屏幕截图 2026-04-06 180934" src="https://github.com/user-attachments/assets/087488c1-a37c-4048-b3e2-738727e1dcf4" />
- |<img width="2764" height="1506" alt="屏幕截图 2026-04-06 181134" src="https://github.com/user-attachments/assets/6de252b7-8a6f-4df3-bd22-4a1abc4b2b98" />
- | <img width="2969" height="1497" alt="屏幕截图 2026-04-06 185858" src="https://github.com/user-attachments/assets/c3508e09-2d46-47f7-b191-3b9514e0a2ef" />
- |
 
 ## 🤝 贡献
 
