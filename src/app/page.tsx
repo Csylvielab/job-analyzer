@@ -36,7 +36,8 @@ import {
   Zap,
   Target,
   TrendingUp,
-  Award
+  Award,
+  ArrowUp
 } from 'lucide-react';
 import mammoth from 'mammoth';
 import { Input } from '@/components/ui/input';
@@ -133,6 +134,9 @@ export default function Home() {
   // 雷达图数据
   const [radarData, setRadarData] = useState<{ subject: string; score: number; fullMark: number }[]>([]);
   const [radarShortest, setRadarShortest] = useState<string>('');
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const reportEndRef = useRef<HTMLDivElement>(null);
   const parsedInfoRef = useRef<{ company?: string; position?: string }>({});
@@ -167,21 +171,55 @@ export default function Home() {
 
   // Load API settings from localStorage on mount
   useEffect(() => {
-    const savedKey = localStorage.getItem("jobanalyzer_api_key");
     const savedProvider = localStorage.getItem("jobanalyzer_ai_provider") as AIProvider;
-    if (savedKey) {
-      setApiKey(savedKey);
-    }
     if (savedProvider) {
       setAiProvider(savedProvider);
+      // Load per-provider API key
+      const savedKey = localStorage.getItem(`jobanalyzer_api_key_${savedProvider}`);
+      if (savedKey) {
+        setApiKey(savedKey);
+      }
     }
   }, []);
+
+  // Load avatar from localStorage on mount
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem("jobanalyzer_avatar");
+    if (savedAvatar) {
+      setAvatarUrl(savedAvatar);
+    }
+  }, []);
+
+  // Get API key for a specific provider (checks per-provider key, falls back to legacy global key for deepseek)
+  const getApiKeyForProvider = (provider: AIProvider) => {
+    const perProviderKey = localStorage.getItem(`jobanalyzer_api_key_${provider}`);
+    if (perProviderKey) return perProviderKey;
+    if (provider === 'deepseek') {
+      return localStorage.getItem("jobanalyzer_api_key") || "";
+    }
+    return "";
+  };
+
+  // Get the current provider's API key from per-provider storage
+  const getCurrentApiKey = () => {
+    const provider = (localStorage.getItem("jobanalyzer_ai_provider") || 'deepseek') as AIProvider;
+    return getApiKeyForProvider(provider);
+  };
 
   useEffect(() => {
     if (content && reportEndRef.current) {
       reportEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [content]);
+
+  // 回到顶部按钮显示/隐藏
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 等待时间计时器
   useEffect(() => {
@@ -263,7 +301,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({
           jobs: selectedJobs.map(j => ({
             company: j.company,
@@ -331,7 +369,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -425,7 +463,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -489,7 +527,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': localStorage.getItem('jobanalyzer_api_key') || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
         body: JSON.stringify({ text: input }),
         signal: abortControllerRef.current.signal,
       });
@@ -662,6 +700,46 @@ export default function Home() {
     setError(null);
   }, [resumeText, resumeName, addResume]);
 
+  // 处理头像上传
+  const handleAvatarUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // 压缩图片到 100x100
+        const canvas = document.createElement('canvas');
+        const size = 100;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // 裁剪为正方形后缩放
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        setAvatarUrl(dataUrl);
+        localStorage.setItem("jobanalyzer_avatar", dataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = '';
+    }
+  }, []);
+
   const loadRecord = (record: JobRecord) => {
     setContent(record.content);
     setParsedInfo({ company: record.company, position: record.position });
@@ -779,17 +857,32 @@ export default function Home() {
             {/* Right: Theme Toggle & Settings & Avatar */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <button onClick={() => { 
-                  setApiKeyInput(apiKey); 
+              <button onClick={() => {
+                  setApiKeyInput(getApiKeyForProvider(aiProvider));
                   setAiProviderInput(aiProvider);
-                  setShowSettingsDialog(true); 
+                  setShowSettingsDialog(true);
                 }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
                 <Settings className="h-5 w-5" strokeWidth={1.5} />
                 {apiKey && <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-emerald-500 rounded-full"></span>}
               </button>
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border border-primary/30">
-                <User className="h-4 w-4 text-primary" strokeWidth={1.5} />
-              </div>
+              <input
+                type="file"
+                ref={avatarInputRef}
+                onChange={handleAvatarUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                className="h-8 w-8 rounded-full bg-gradient-to-br from-primary/30 to-purple-500/30 flex items-center justify-center border border-primary/30 hover:opacity-80 transition-opacity cursor-pointer overflow-hidden"
+                title="点击上传头像"
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="头像" className="h-full w-full object-cover rounded-full" />
+                ) : (
+                  <User className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -833,7 +926,7 @@ export default function Home() {
                       className="w-full px-4 py-3 rounded-xl bg-muted border border-input
                         focus:border-primary/50 focus:ring-2 focus:ring-primary/20
                         transition-all duration-200 resize-none
-                        text-sm text-foreground placeholder:text-muted-foreground"
+                        text-sm text-black dark:text-foreground placeholder:text-muted-foreground"
                     />
 
                     {/* 按钮区域 */}
@@ -1009,17 +1102,58 @@ export default function Home() {
                   </button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+              {/* 搜索栏 + 对比模式按钮 - 统一固定在顶部 */}
+              <div className="sticky top-0 z-10 bg-background border-b border-border shadow-sm">
                 {/* Search Box */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                  <Input
-                    placeholder="搜索公司或岗位..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 bg-muted border-border focus:border-[#667eea]/50 text-sm text-zinc-200 placeholder:text-zinc-600"
-                  />
+                <div className="px-3 pt-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                    <Input
+                      placeholder="搜索公司或岗位..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 bg-muted border-border focus:border-[#667eea]/50 text-sm text-black dark:text-foreground placeholder:text-muted-foreground"
+                    />
+                  </div>
                 </div>
+                {/* 对比模式按钮 */}
+                {viewMode === 'compare' && !showHistory && (
+                  <div className="px-3 pt-3 pb-3">
+                    <div className="bg-white dark:bg-[#0f0f23] rounded-xl p-3 text-sm text-foreground-secondary border border-[#667eea]/20 shadow-sm">
+                      <p className="mb-2">请选择 2 个岗位进行对比</p>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={executeCompare}
+                          disabled={compareSelection.length !== 2 || isComparing}
+                          className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] hover:opacity-90 text-white border-0"
+                        >
+                          {isComparing ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" strokeWidth={1.5} />
+                              对比中 ({formatWaitTime(waitTime)})
+                            </>
+                          ) : (
+                            <>
+                              <GitCompare className="h-3 w-3 mr-1" strokeWidth={1.5} />
+                              开始对比
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={cancelCompare}
+                          className="border-border text-foreground-secondary hover:bg-accent"
+                        >
+                          取消
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <CardContent className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
 
                 {/* 全选/取消全选按钮 - 不在分析历史模式下显示 */}
                 {!showHistory && viewMode !== 'compare' && filteredRecords.length > 0 && (
@@ -1044,41 +1178,6 @@ export default function Home() {
                       </>
                     )}
                   </Button>
-                )}
-
-                {/* 对比模式按钮 - 仅在对比模式且非历史模式下显示 */}
-                {viewMode === 'compare' && !showHistory && (
-                  <div className="bg-[#667eea]/10 rounded-xl p-3 text-sm text-foreground-secondary border border-[#667eea]/20">
-                    <p className="mb-2">请选择 2 个岗位进行对比</p>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={executeCompare}
-                        disabled={compareSelection.length !== 2 || isComparing}
-                        className="flex-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] hover:opacity-90 text-foreground border-0"
-                      >
-                        {isComparing ? (
-                          <>
-                            <Loader2 className="h-3 w-3 mr-1 animate-spin" strokeWidth={1.5} />
-                            对比中 ({formatWaitTime(waitTime)})
-                          </>
-                        ) : (
-                          <>
-                            <GitCompare className="h-3 w-3 mr-1" strokeWidth={1.5} />
-                            开始对比
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={cancelCompare}
-                        className="border-border text-foreground-secondary hover:bg-accent"
-                      >
-                        取消
-                      </Button>
-                    </div>
-                  </div>
                 )}
 
                 {/* 记录列表 */}
@@ -1540,22 +1639,22 @@ export default function Home() {
 
                 {/* Error State - MagicUI */}
                 {viewMode === 'input' && error && (
-                  <div className="p-6 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                  <div className="p-6 bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-xl">
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                        <Lightbulb className="h-4 w-4 text-amber-400" strokeWidth={1.5} />
+                      <div className="h-8 w-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                        <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-amber-400 mb-2">
+                        <h3 className="font-semibold text-amber-900 dark:text-amber-200 mb-2">
                           {(error.missingFields?.length ?? 0) > 0
                             ? `缺少必要信息：${error.missingFields?.join('、')}`
                             : '分析出错'}
                         </h3>
-                        <p className="text-amber-300/80 text-sm mb-3">{error.message}</p>
+                        <p className="text-amber-800 dark:text-amber-200/90 text-sm mb-3">{error.message}</p>
                         {error.suggestion && (
-                          <div className="bg-black/30 rounded-lg p-3 text-sm text-amber-300/80 border border-border/50">
+                          <div className="bg-amber-100 dark:bg-black/30 rounded-lg p-3 text-sm text-amber-800 dark:text-amber-200/80 border border-amber-200 dark:border-border/50">
                             <p className="font-medium mb-1">💡 建议格式：</p>
-                            <pre className="whitespace-pre-wrap font-mono text-xs text-amber-300/60 leading-relaxed">
+                            <pre className="whitespace-pre-wrap font-mono text-xs text-amber-700 dark:text-amber-200/70 leading-relaxed">
                               {error.suggestion}
                             </pre>
                           </div>
@@ -1613,12 +1712,15 @@ export default function Home() {
               {/* AI Provider Selection */}
               <div>
                 <label className="text-sm font-medium block mb-1.5">AI 提供商</label>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-1">
                   {(['deepseek', 'openai', 'anthropic', 'moonshot', 'gemini'] as AIProvider[]).map((provider) => (
                     <button
                       key={provider}
-                      onClick={() => setAiProviderInput(provider)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      onClick={() => {
+                          setAiProviderInput(provider);
+                          setApiKeyInput(getApiKeyForProvider(provider));
+                        }}
+                      className={`px-1 py-2 rounded-lg text-xs font-medium transition-all truncate ${
                         aiProviderInput === provider
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted text-muted-foreground hover:bg-accent'
@@ -1698,7 +1800,7 @@ export default function Home() {
                   onClick={() => {
                     setApiKey(apiKeyInput);
                     setAiProvider(aiProviderInput);
-                    localStorage.setItem("jobanalyzer_api_key", apiKeyInput);
+                    localStorage.setItem(`jobanalyzer_api_key_${aiProviderInput}`, apiKeyInput);
                     localStorage.setItem("jobanalyzer_ai_provider", aiProviderInput);
                     setShowSettingsDialog(false);
                   }}
@@ -1709,6 +1811,16 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 回到顶部按钮 */}
+      {showBackToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white shadow-lg shadow-[#667eea]/30 hover:shadow-xl hover:shadow-[#667eea]/50 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex items-center justify-center"
+        >
+          <ArrowUp className="h-5 w-5" strokeWidth={1.5} />
+        </button>
       )}
     </div>
   );
