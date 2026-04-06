@@ -1,20 +1,25 @@
-# JobInsight AI - 智能求职分析平台
+# JobAnalyzer AI - 智能求职分析平台
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer)
 
-投递机会是有限的，别把子弹浪费在不适合的‘坑’里。
+💡 为什么选择 JobInsight AI？
+“投递机会是有限的，别把子弹浪费在不适合的‘坑’里。”
+JobAnalyzer 是一款AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
 
-Jobanalyzer的【PK 模式】能帮你把 A 岗位与 B 岗位进行像素级对比：
+⚡️ 零 Prompt 负担：内置专家级分析链路，粘贴 JD 即可获得深度内参，无需再调优长串指令。深度还原并推断岗位释出背景、岗位日常工作和岗位发展前景。
 
--哪一个对跳槽大厂更有背书？
+🔒 隐私主权归你：支持接入个人 API，所有分析数据本地化处理，简历隐私绝不外流。
 
--哪一个的技能栈增长曲线更陡峭？
+🧠 选择困难症的【PK 模式】：
 
--哪一个的加班风险更低？
+·背书比拼：哪份履历对下一跳跳槽大厂更有利？
 
-对比完再投，让每一次点击都有 80% 的胜算。
+·成长对撞：哪个岗位的技能栈曲线更陡峭、更有护城河？
 
-AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
+·红旗警示：基于行业常态与舆情，谁的加班风险和业务波动更高？
+
+对比完再投，让你的每一次点击，都拥有 80% 以上的胜算。
+
 
 <img width="2954" height="1390" alt="image" src="https://github.com/user-attachments/assets/fb75f667-a694-4911-aa92-0295af78f4ff" />
 
@@ -27,7 +32,6 @@ AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位�
 - **综合评估**：匹配度评分、投递建议、准备策略
 
 ### 📊 简历智能评估
-- **五维雷达图**：技能、经验、行业背景、软实力、教育
 - **匹配度分析**：简历与岗位的契合程度
 - **短板识别**：明确差距，有的放矢
 
@@ -145,7 +149,9 @@ API Key 和提供商偏好会保存在浏览器本地存储中，切换时自动
 | 岗位分析 | 简历评估 | 简历优化 |
 |---------|---------|---------|
 | <img width="2783" height="1378" alt="屏幕截图 2026-04-06 180934" src="https://github.com/user-attachments/assets/087488c1-a37c-4048-b3e2-738727e1dcf4" />
- | ![评估](./docs/evaluate.png) | ![优化](./docs/optimize.png) |
+ |<img width="2764" height="1506" alt="屏幕截图 2026-04-06 181134" src="https://github.com/user-attachments/assets/6de252b7-8a6f-4df3-bd22-4a1abc4b2b98" />
+ | <img width="2969" height="1497" alt="屏幕截图 2026-04-06 185858" src="https://github.com/user-attachments/assets/c3508e09-2d46-47f7-b191-3b9514e0a2ef" />
+ |
 
 ## 🤝 贡献
 
