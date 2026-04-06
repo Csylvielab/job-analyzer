@@ -21,7 +21,7 @@ export interface SearchResult {
 // 生成模拟搜索结果（当没有配置真实搜索 API 时使用）
 async function mockSearchFallback(company: string): Promise<SearchResult[]> {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-  await delay(800);
+  await delay(150);
 
   return [
     {

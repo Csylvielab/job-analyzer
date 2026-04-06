@@ -173,8 +173,22 @@ export async function POST(req: Request) {
 
     console.log('[API] 收到用户输入:', rawText.slice(0, 100) + '...');
 
-    // 第一步：解析用户输入
-    const { company, position, jd, missingFields, confidence } = await parseUserInput(rawText, apiKey, aiProvider);
+    // 第一步：从原始文本快速提取公司名（同步，不走 LLM）
+    const quickCompany = (() => {
+      const m = rawText.match(/([\u4e00-\u9fa5]{2,15}(?:公司|集团|科技|网络|互联网|银行|基金|证券|电器|医药|汽车|教育|游戏))/);
+      return m ? m[1] : '';
+    })();
+
+    // 第二步：并行执行 LLM 解析 + 搜索
+    const searchApiType = req.headers.get('X-Search-Api-Type') || 'none';
+    const searchApiKey = req.headers.get('X-Search-Api-Key') || '';
+
+    const [parseResult, searchResults] = await Promise.all([
+      parseUserInput(rawText, apiKey, aiProvider),
+      mockSearch(quickCompany || '公司', searchApiType, searchApiKey),
+    ]);
+
+    const { company, position, jd, missingFields, confidence } = parseResult;
 
     console.log('[API] 解析结果:', { company, position, missingFields, confidence });
 
@@ -199,18 +213,19 @@ export async function POST(req: Request) {
       console.log('[API] 解析置信度较低，可能存在识别错误');
     }
 
-    // 第二步：执行搜索（根据前端配置选择真实搜索或 Mock）
-    const searchApiType = req.headers.get('X-Search-Api-Type') || 'none';
-    const searchApiKey = req.headers.get('X-Search-Api-Key') || '';
-    const searchResults = await mockSearch(company, searchApiType, searchApiKey);
+    // 如果快速提取的公司名与解析结果不一致，用正确公司名重新搜索
+    const finalSearchResults = (quickCompany && !company.includes(quickCompany.slice(0, 4)))
+      ? await mockSearch(company, searchApiType, searchApiKey)
+      : searchResults;
+
     console.log('[API] 搜索结果已生成，公司:', company);
 
-    // 第三步：构建分析 prompt
+    // 构建分析 prompt
     const userPrompt = buildUserPrompt({
       company,
       position,
       jd,
-      searchResults,
+      searchResults: finalSearchResults,
     });
 
     // 先返回解析信息，再流式返回分析结果
