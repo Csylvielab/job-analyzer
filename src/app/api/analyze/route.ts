@@ -182,10 +182,11 @@ export async function POST(req: Request) {
     // 第二步：并行执行 LLM 解析 + 搜索
     const searchApiType = req.headers.get('X-Search-Api-Type') || 'none';
     const searchApiKey = req.headers.get('X-Search-Api-Key') || '';
+    const searchApiCx = req.headers.get('X-Search-Api-Cx') || '';
 
     const [parseResult, searchResults] = await Promise.all([
       parseUserInput(rawText, apiKey, aiProvider),
-      mockSearch(quickCompany || '公司', searchApiType, searchApiKey),
+      mockSearch(quickCompany || '公司', searchApiType, searchApiKey, searchApiCx),
     ]);
 
     const { company, position, jd, missingFields, confidence } = parseResult;
@@ -215,7 +216,7 @@ export async function POST(req: Request) {
 
     // 如果快速提取的公司名与解析结果不一致，用正确公司名重新搜索
     const finalSearchResults = (quickCompany && !company.includes(quickCompany.slice(0, 4)))
-      ? await mockSearch(company, searchApiType, searchApiKey)
+      ? await mockSearch(company, searchApiType, searchApiKey, searchApiCx)
       : searchResults;
 
     console.log('[API] 搜索结果已生成，公司:', company);
