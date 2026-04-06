@@ -2,6 +2,18 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer)
 
+投递机会是有限的，别把子弹浪费在不适合的‘坑’里。
+
+Jobanalyzer的【PK 模式】能帮你把 A 岗位与 B 岗位进行像素级对比：
+
+-哪一个对跳槽大厂更有背书？
+
+-哪一个的技能栈增长曲线更陡峭？
+
+-哪一个的加班风险更低？
+
+对比完再投，让每一次点击都有 80% 的胜算。
+
 AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
 
 <img width="2954" height="1390" alt="image" src="https://github.com/user-attachments/assets/fb75f667-a694-4911-aa92-0295af78f4ff" />
@@ -132,7 +144,8 @@ API Key 和提供商偏好会保存在浏览器本地存储中，切换时自动
 
 | 岗位分析 | 简历评估 | 简历优化 |
 |---------|---------|---------|
-| ![分析](./docs/analyze.png) | ![评估](./docs/evaluate.png) | ![优化](./docs/optimize.png) |
+| <img width="2783" height="1378" alt="屏幕截图 2026-04-06 180934" src="https://github.com/user-attachments/assets/087488c1-a37c-4048-b3e2-738727e1dcf4" />
+ | ![评估](./docs/evaluate.png) | ![优化](./docs/optimize.png) |
 
 ## 🤝 贡献
 
