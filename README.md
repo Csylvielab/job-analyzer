@@ -52,17 +52,21 @@ JobAnalyzer 是一款AI 驱动的智能求职分析工具，帮助求职者深�
 - 多维度优劣分析
 - 辅助决策最佳机会
 
-## 🚀 快速开始
+## 🚀 5 分钟快速部署
 
-### 方式一：一键部署到 Vercel（推荐）
+### ☁️ 一键部署到 Vercel（免费）
 
-点击上方 "Deploy with Vercel" 按钮，按提示完成部署：
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer)
 
-1. Fork 本仓库
-2. 在 Vercel 中部署
-3. 部署完成后在网页上点击「设置」配置 AI 提供商和 API Key
+只需 3 步，拥有自己的求职分析工具：
 
-### 方式二：本地开发
+**Step 1.** 点击上方 "Deploy with Vercel" 按钮
+**Step 2.** 用 GitHub 登录 Vercel（免费）
+**Step 3.** 部署完成后，打开网址 → 点击右上角「设置」→ 填入 API Key → 开箱即用
+
+> 💡 **零门槛**：不需要懂代码，不需要服务器，Vercel 免费套餐完全够用。
+
+### 💻 本地开发
 
 ```bash
 # 1. 克隆仓库
