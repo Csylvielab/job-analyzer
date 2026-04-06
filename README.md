@@ -85,7 +85,7 @@ npm run dev
 
 | 提供商 | 模型 | 获取 API Key | 备注 |
 |--------|------|-------------|------|
-| **DeepSeek** | deepseek-chat | [platform.deepseek.com](https://platform.deepseek.com/) | 推荐，免费额度大 |
+| **DeepSeek** | deepseek-chat | [platform.deepseek.com](https://platform.deepseek.com/) | |
 | **OpenAI** | GPT-4o | [platform.openai.com](https://platform.openai.com/api-keys) | |
 | **Claude** | claude-3-sonnet | [console.anthropic.com](https://console.anthropic.com/settings/keys) | |
 | **Moonshot** | moonshot-v1-8k | [platform.moonshot.cn](https://platform.moonshot.cn/) | |
