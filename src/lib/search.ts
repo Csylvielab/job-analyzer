@@ -1,7 +1,6 @@
 /**
  * 搜索服务
- * - 若配置了 SERPAPI_KEY，自动使用 SerpAPI 真实搜索
- * - 若配置了 BING_SEARCH_KEY，自动使用 Bing Search API
+ * - 若传入了 searchApiKey，优先使用对应的搜索 API
  * - 否则 fallback 到 Mock 假数据
  */
 
@@ -58,9 +57,8 @@ async function mockSearchFallback(company: string): Promise<SearchResult[]> {
   ];
 }
 
-// 通过 SerpAPI 搜索（需配置 SERPAPI_KEY 环境变量）
-async function serpapiSearch(company: string): Promise<SearchResult[]> {
-  const apiKey = process.env.SERPAPI_KEY;
+// 通过 SerpAPI 搜索
+async function serpapiSearch(company: string, apiKey: string): Promise<SearchResult[]> {
   if (!apiKey) return mockSearchFallback(company);
 
   const queries = [
@@ -98,12 +96,11 @@ async function serpapiSearch(company: string): Promise<SearchResult[]> {
   return results.length > 0 ? results : mockSearchFallback(company);
 }
 
-// 通过 Bing Search API 搜索（需配置 BING_SEARCH_KEY 和 BING_SEARCH_ENDPOINT 环境变量）
-async function bingSearch(company: string): Promise<SearchResult[]> {
-  const apiKey = process.env.BING_SEARCH_KEY;
-  const endpoint = process.env.BING_SEARCH_ENDPOINT || 'https://api.bing.microsoft.com/v7.0';
-  if (!apiKey) return serpapiSearch(company);
+// 通过 Bing Search API 搜索
+async function bingSearch(company: string, apiKey: string): Promise<SearchResult[]> {
+  if (!apiKey) return serpapiSearch(company, '');
 
+  const endpoint = 'https://api.bing.microsoft.com/v7.0';
   const queries = [
     `${company} 融资 投资`,
     `${company} 裁员 口碑`,
@@ -138,22 +135,24 @@ async function bingSearch(company: string): Promise<SearchResult[]> {
     }
   }
 
-  return results.length > 0 ? results : serpapiSearch(company);
+  return results.length > 0 ? results : serpapiSearch(company, '');
 }
 
-// 主入口：自动根据环境变量选择搜索方式
-export async function mockSearch(company: string): Promise<SearchResult[]> {
-  // 优先 Bing
-  if (process.env.BING_SEARCH_KEY) {
+// 主入口：传入 searchApiType 和 searchApiKey（来自请求头）
+export async function mockSearch(
+  company: string,
+  searchApiType?: string,
+  searchApiKey?: string
+): Promise<SearchResult[]> {
+  if (searchApiType === 'bing' && searchApiKey) {
     console.log('[Search] 使用 Bing Search API');
-    return bingSearch(company);
+    return bingSearch(company, searchApiKey);
   }
-  // 其次 SerpAPI
-  if (process.env.SERPAPI_KEY) {
+  if (searchApiType === 'serpapi' && searchApiKey) {
     console.log('[Search] 使用 SerpAPI');
-    return serpapiSearch(company);
+    return serpapiSearch(company, searchApiKey);
   }
-  // 都没有，用 Mock
+  // 未配置或为 'none'，用 Mock
   console.log('[Search] 未配置搜索 API，使用 Mock 数据');
   return mockSearchFallback(company);
 }

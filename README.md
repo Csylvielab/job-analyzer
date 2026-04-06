@@ -129,14 +129,19 @@ job-analyzer/
 
 ### 接入真实搜索（可选）
 
-默认使用模拟搜索数据，自动检测并切换真实搜索 API：
+在网页「设置」中可直接配置搜索 API，无需修改代码：
 
-编辑 `.env.local`，配置以下任一搜索服务：
-- [SerpAPI](https://serpapi.com/) - 免费 100次/月，推荐
-- [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api) - 免费 1000次/月
-- [Perplexity](https://www.perplexity.ai/settings/api) - **推荐**，内置搜索，无需额外配置
+1. 点击右上角 **⚙️ 设置**
+2. 在「搜索 API」区域选择 SerpAPI 或 Bing
+3. 填入对应的 API Key 并保存
 
-使用 Perplexity API 时，AI 会自动联网搜索最新信息，无需额外配置搜索服务。
+| 搜索服务 | 免费额度 | 获取方式 |
+|---------|---------|---------|
+| **Perplexity** | - | 选择 Perplexity 作为 AI 提供商即可自动联网搜索 |
+| SerpAPI | 100次/月 | [serpapi.com](https://serpapi.com/) |
+| Bing Search | 1000次/月 | [Azure Portal](https://portal.azure.com) 创建 Bing Search 资源 |
+
+> 💡 **推荐**：直接选择 **Perplexity** 作为 AI 提供商，天然内置搜索能力，无需额外配置搜索服务。
 
 ### 切换 AI 提供商
 

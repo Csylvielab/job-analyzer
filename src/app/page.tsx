@@ -143,13 +143,17 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Settings dialog and API Key state
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  
+
   // Debug: log state changes
   useEffect(() => {
     console.log('Settings dialog state:', showSettingsDialog);
   }, [showSettingsDialog]);
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
+  // Search API state
+  type SearchProvider = 'none' | 'serpapi' | 'bing';
+  const [searchApiType, setSearchApiType] = useState<SearchProvider>('none');
+  const [searchApiKeyInput, setSearchApiKeyInput] = useState("");
   // AI Provider state
   type AIProvider = 'deepseek' | 'openai' | 'anthropic' | 'moonshot' | 'gemini' | 'perplexity';
   const [aiProvider, setAiProvider] = useState<AIProvider>('deepseek');
@@ -180,6 +184,15 @@ export default function Home() {
         setApiKey(savedKey);
       }
     }
+    // Load search API settings
+    const savedSearchType = localStorage.getItem("jobanalyzer_search_type") as SearchProvider;
+    if (savedSearchType) {
+      setSearchApiType(savedSearchType);
+      const savedSearchKey = localStorage.getItem(`jobanalyzer_search_key_${savedSearchType}`);
+      if (savedSearchKey) {
+        setSearchApiKeyInput(savedSearchKey);
+      }
+    }
   }, []);
 
   // Load avatar from localStorage on mount
@@ -204,6 +217,14 @@ export default function Home() {
   const getCurrentApiKey = () => {
     const provider = (localStorage.getItem("jobanalyzer_ai_provider") || 'deepseek') as AIProvider;
     return getApiKeyForProvider(provider);
+  };
+
+  // Get current search API key and type
+  const getSearchApiType = () => localStorage.getItem("jobanalyzer_search_type") || 'none';
+  const getSearchApiKey = () => {
+    const type = getSearchApiType();
+    if (type === 'none') return '';
+    return localStorage.getItem(`jobanalyzer_search_key_${type}`) || '';
   };
 
   useEffect(() => {
@@ -301,7 +322,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/compare', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
         body: JSON.stringify({
           jobs: selectedJobs.map(j => ({
             company: j.company,
@@ -369,7 +390,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -463,7 +484,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
         body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
         signal: abortControllerRef.current.signal,
       });
@@ -527,7 +548,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek' },
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
         body: JSON.stringify({ text: input }),
         signal: abortControllerRef.current.signal,
       });
@@ -860,6 +881,13 @@ export default function Home() {
               <button onClick={() => {
                   setApiKeyInput(getApiKeyForProvider(aiProvider));
                   setAiProviderInput(aiProvider);
+                  const savedSearchType = localStorage.getItem("jobanalyzer_search_type") as SearchProvider;
+                  setSearchApiType(savedSearchType || 'none');
+                  if (savedSearchType && savedSearchType !== 'none') {
+                    setSearchApiKeyInput(localStorage.getItem(`jobanalyzer_search_key_${savedSearchType}`) || '');
+                  } else {
+                    setSearchApiKeyInput('');
+                  }
                   setShowSettingsDialog(true);
                 }} className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 relative">
                 <Settings className="h-5 w-5" strokeWidth={1.5} />
@@ -1795,6 +1823,56 @@ export default function Home() {
                 </p>
               </div>
 
+              {/* 搜索 API 配置 */}
+              {aiProviderInput !== 'perplexity' && (
+                <div className="border-t border-border pt-4">
+                  <label className="text-sm font-medium block mb-1.5">搜索 API（可选）</label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    不配置则使用 Perplexity（推荐）或模拟数据。配置后 AI 分析将结合真实搜索结果。
+                  </p>
+                  <div className="flex gap-1 mb-2">
+                    {(['none', 'serpapi', 'bing'] as SearchProvider[]).map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSearchApiType(type)}
+                        className={`px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          searchApiType === type
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                        }`}
+                      >
+                        {type === 'none' && '不配置'}
+                        {type === 'serpapi' && 'SerpAPI'}
+                        {type === 'bing' && 'Bing'}
+                      </button>
+                    ))}
+                  </div>
+                  {searchApiType !== 'none' && (
+                    <Input
+                      type="password"
+                      placeholder={
+                        searchApiType === 'serpapi' ? 'SerpAPI Key (在 serpapi.com 获取)' : 'Bing API Key (在 Azure 获取)'
+                      }
+                      value={searchApiKeyInput}
+                      onChange={(e) => setSearchApiKeyInput(e.target.value)}
+                      className="font-mono text-sm"
+                    />
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {searchApiType === 'serpapi' && '免费 100次/月，推荐'}
+                    {searchApiType === 'bing' && '免费 1000次/月'}
+                  </p>
+                </div>
+              )}
+              {aiProviderInput === 'perplexity' && (
+                <div className="border-t border-border pt-3">
+                  <div className="flex items-center gap-2 text-xs text-success">
+                    <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
+                    <span>Perplexity 已内置搜索功能，无需额外配置</span>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -1810,6 +1888,11 @@ export default function Home() {
                     setAiProvider(aiProviderInput);
                     localStorage.setItem(`jobanalyzer_api_key_${aiProviderInput}`, apiKeyInput);
                     localStorage.setItem("jobanalyzer_ai_provider", aiProviderInput);
+                    // Save search API settings
+                    localStorage.setItem("jobanalyzer_search_type", searchApiType);
+                    if (searchApiType !== 'none') {
+                      localStorage.setItem(`jobanalyzer_search_key_${searchApiType}`, searchApiKeyInput);
+                    }
                     setShowSettingsDialog(false);
                   }}
                 >

@@ -199,8 +199,10 @@ export async function POST(req: Request) {
       console.log('[API] 解析置信度较低，可能存在识别错误');
     }
 
-    // 第二步：执行搜索（mock）
-    const searchResults = await mockSearch(company);
+    // 第二步：执行搜索（根据前端配置选择真实搜索或 Mock）
+    const searchApiType = req.headers.get('X-Search-Api-Type') || 'none';
+    const searchApiKey = req.headers.get('X-Search-Api-Key') || '';
+    const searchResults = await mockSearch(company, searchApiType, searchApiKey);
     console.log('[API] 搜索结果已生成，公司:', company);
 
     // 第三步：构建分析 prompt
