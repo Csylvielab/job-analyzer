@@ -19,6 +19,8 @@ function getAIProvider(apiKey: string, provider: string) {
       return createMoonshotAI({ apiKey: key || process.env.MOONSHOT_API_KEY || '' });
     case 'gemini':
       return createGoogleGenerativeAI({ apiKey: key || process.env.GEMINI_API_KEY || '' });
+    case 'perplexity':
+      return createOpenAI({ apiKey: key || process.env.PERPLEXITY_API_KEY || '', baseURL: 'https://api.perplexity.ai' });
     case 'deepseek':
     default:
       return createDeepSeek({ apiKey: key || process.env.DEEPSEEK_API_KEY || '' });
@@ -68,9 +70,11 @@ async function parseUserInput(rawText: string, apiKey: string, aiProvider: strin
         const provider = getAIProvider(apiKey, aiProvider);
         switch (aiProvider) {
           case 'openai':
-            return provider('gpt-4');
+            return provider('gpt-4o');
           case 'anthropic':
             return provider('claude-3-sonnet-20240229');
+          case 'perplexity':
+            return provider('sonar');
           case 'deepseek':
           default:
             return provider('deepseek-chat');
@@ -225,13 +229,15 @@ export async function POST(req: Request) {
         const provider = getAIProvider(apiKey, aiProvider);
         switch (aiProvider) {
           case 'openai':
-            return provider('gpt-4');
+            return provider('gpt-4o');
           case 'anthropic':
             return provider('claude-3-sonnet-20240229');
           case 'moonshot':
             return provider('moonshot-v1-8k');
           case 'gemini':
             return provider('gemini-1.5-pro');
+          case 'perplexity':
+            return provider('sonar-pro');
           case 'deepseek':
           default:
             return provider('deepseek-chat');

@@ -151,7 +151,7 @@ export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [apiKeyInput, setApiKeyInput] = useState("");
   // AI Provider state
-  type AIProvider = 'deepseek' | 'openai' | 'anthropic' | 'moonshot' | 'gemini';
+  type AIProvider = 'deepseek' | 'openai' | 'anthropic' | 'moonshot' | 'gemini' | 'perplexity';
   const [aiProvider, setAiProvider] = useState<AIProvider>('deepseek');
   const [aiProviderInput, setAiProviderInput] = useState<AIProvider>('deepseek');
   const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1433,7 +1433,7 @@ export default function Home() {
                         <GitCompare className="h-10 w-10 text-[#667eea]/60" strokeWidth={1.5} />
                       </div>
                     </div>
-                    <p className="text-base mb-2 text-foreground-secondary">在左侧选择两个岗位进行对比</p>
+                    <p className="text-base mb-2 text-foreground-secondary">在上方选择两个岗位进行对比</p>
                     <p className="text-sm text-muted-foreground">AI 会从多维度帮你分析哪个更值得投递</p>
                     {compareSelection.length > 0 && (
                       <div className="mt-6 flex gap-2">
@@ -1712,8 +1712,8 @@ export default function Home() {
               {/* AI Provider Selection */}
               <div>
                 <label className="text-sm font-medium block mb-1.5">AI 提供商</label>
-                <div className="grid grid-cols-5 gap-1">
-                  {(['deepseek', 'openai', 'anthropic', 'moonshot', 'gemini'] as AIProvider[]).map((provider) => (
+                <div className="grid grid-cols-6 gap-1">
+                  {(['deepseek', 'openai', 'anthropic', 'moonshot', 'gemini', 'perplexity'] as AIProvider[]).map((provider) => (
                     <button
                       key={provider}
                       onClick={() => {
@@ -1731,6 +1731,7 @@ export default function Home() {
                       {provider === 'anthropic' && 'Claude'}
                       {provider === 'moonshot' && 'Moonshot'}
                       {provider === 'gemini' && 'Gemini'}
+                      {provider === 'perplexity' && 'Perplexity'}
                     </button>
                   ))}
                 </div>
@@ -1744,6 +1745,7 @@ export default function Home() {
                   {aiProviderInput === 'anthropic' && 'Anthropic API Key'}
                   {aiProviderInput === 'moonshot' && 'Moonshot API Key'}
                   {aiProviderInput === 'gemini' && 'Gemini API Key'}
+                  {aiProviderInput === 'perplexity' && 'Perplexity API Key'}
                 </label>
                 <Input
                   type="password"
@@ -1752,7 +1754,8 @@ export default function Home() {
                     aiProviderInput === 'openai' ? 'sk-...' :
                     aiProviderInput === 'anthropic' ? 'sk-ant-...' :
                     aiProviderInput === 'moonshot' ? 'sk-...' :
-                    'AIza...'
+                    aiProviderInput === 'gemini' ? 'AIza...' :
+                    'pplx-...'
                   }
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
@@ -1782,6 +1785,11 @@ export default function Home() {
                   {aiProviderInput === 'gemini' && (
                     <>
                       没有 API Key？前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google AI Studio</a> 获取
+                    </>
+                  )}
+                  {aiProviderInput === 'perplexity' && (
+                    <>
+                      没有 API Key？前往 <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Perplexity API</a> 免费申请（自带搜索功能）
                     </>
                   )}
                 </p>

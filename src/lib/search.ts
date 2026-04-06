@@ -1,11 +1,15 @@
 /**
- * 搜索服务 - 当前使用 Mock 数据
- * 后续可替换为真实搜索 API (SerpAPI, Bing Search API 等)
+ * 搜索服务
+ * - 若配置了 SERPAPI_KEY，自动使用 SerpAPI 真实搜索
+ * - 若配置了 BING_SEARCH_KEY，自动使用 Bing Search API
+ * - 否则 fallback 到 Mock 假数据
  */
 
 export interface SearchQuery {
   category: string;
-  queries: string[];
+  query: string;
+  results: string[];
+  sources: string[];
 }
 
 export interface SearchResult {
@@ -15,14 +19,12 @@ export interface SearchResult {
   sources: string[];
 }
 
-// 生成模拟搜索结果
-export async function mockSearch(company: string): Promise<SearchResult[]> {
+// 生成模拟搜索结果（当没有配置真实搜索 API 时使用）
+async function mockSearchFallback(company: string): Promise<SearchResult[]> {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  // 模拟网络延迟
   await delay(800);
 
-  const results: SearchResult[] = [
+  return [
     {
       category: "公司信息提示",
       query: `${company} 公司信息`,
@@ -48,50 +50,120 @@ export async function mockSearch(company: string): Promise<SearchResult[]> {
       query: `信息核实建议`,
       results: [
         `所有搜索结果仅供参考，实际公司信息请以面试时的官方介绍为准`,
-        `建议在面试时主动询问：公司组织架构、业务规模、核心产品、发展历程等`,
+        `建议在面试时主动询问：公司组织架构、业务规模、核心产品，发展历程等`,
         `可通过天眼查/企查查核实：公司成立时间、注册资本、法人代表、关联企业`
       ],
       sources: ["建议"]
     }
   ];
-
-  return results;
 }
 
-// 搜索查询配置
-export function getSearchQueries(company: string): SearchQuery[] {
-  return [
-    {
-      category: "公司融资动态",
-      queries: [
-        `${company} 融资`,
-        `${company} 投资方`,
-        `${company} IPO`
-      ]
-    },
-    {
-      category: "公司舆情",
-      queries: [
-        `${company} 裁员`,
-        `${company} 口碑`,
-        `${company} 脉脉`
-      ]
-    },
-    {
-      category: "业务动态",
-      queries: [
-        `${company} 新产品`,
-        `${company} 业务调整`,
-        `${company} 最新动态`
-      ]
-    },
-    {
-      category: "招聘动态",
-      queries: [
-        `${company} 招聘`,
-        `${company} 岗位 拉勾`,
-        `${company} 岗位 Boss直聘`
-      ]
+// 通过 SerpAPI 搜索（需配置 SERPAPI_KEY 环境变量）
+async function serpapiSearch(company: string): Promise<SearchResult[]> {
+  const apiKey = process.env.SERPAPI_KEY;
+  if (!apiKey) return mockSearchFallback(company);
+
+  const queries = [
+    `${company} 融资 投资`,
+    `${company} 裁员 口碑`,
+    `${company} 最新动态 业务`
+  ];
+
+  const results: SearchResult[] = [];
+
+  for (const q of queries) {
+    try {
+      const url = `https://serpapi.com/search.json?q=${encodeURIComponent(q)}&api_key=${apiKey}&num=3`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.organic_results) {
+        const texts = data.organic_results.slice(0, 3).map((r: any) =>
+          `${r.title} - ${r.snippet}`
+        );
+        if (texts.length > 0) {
+          results.push({
+            category: q.includes('融资') ? '公司融资动态' : q.includes('裁员') ? '公司舆情' : '业务动态',
+            query: q,
+            results: texts,
+            sources: data.organic_results.slice(0, 3).map((r: any) => r.link)
+          });
+        }
+      }
+    } catch (e) {
+      console.error('SerpAPI search error:', e);
     }
+  }
+
+  return results.length > 0 ? results : mockSearchFallback(company);
+}
+
+// 通过 Bing Search API 搜索（需配置 BING_SEARCH_KEY 和 BING_SEARCH_ENDPOINT 环境变量）
+async function bingSearch(company: string): Promise<SearchResult[]> {
+  const apiKey = process.env.BING_SEARCH_KEY;
+  const endpoint = process.env.BING_SEARCH_ENDPOINT || 'https://api.bing.microsoft.com/v7.0';
+  if (!apiKey) return serpapiSearch(company);
+
+  const queries = [
+    `${company} 融资 投资`,
+    `${company} 裁员 口碑`,
+    `${company} 最新动态`
+  ];
+
+  const results: SearchResult[] = [];
+
+  for (const q of queries) {
+    try {
+      const url = `${endpoint}/search?q=${encodeURIComponent(q)}&count=3`;
+      const res = await fetch(url, {
+        headers: { 'Ocp-Apim-Subscription-Key': apiKey }
+      });
+      const data = await res.json();
+
+      if (data.webPages?.value) {
+        const texts = data.webPages.value.map((r: any) =>
+          `${r.name} - ${r.snippet}`
+        );
+        if (texts.length > 0) {
+          results.push({
+            category: q.includes('融资') ? '公司融资动态' : q.includes('裁员') ? '公司舆情' : '业务动态',
+            query: q,
+            results: texts,
+            sources: data.webPages.value.map((r: any) => r.url)
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Bing search error:', e);
+    }
+  }
+
+  return results.length > 0 ? results : serpapiSearch(company);
+}
+
+// 主入口：自动根据环境变量选择搜索方式
+export async function mockSearch(company: string): Promise<SearchResult[]> {
+  // 优先 Bing
+  if (process.env.BING_SEARCH_KEY) {
+    console.log('[Search] 使用 Bing Search API');
+    return bingSearch(company);
+  }
+  // 其次 SerpAPI
+  if (process.env.SERPAPI_KEY) {
+    console.log('[Search] 使用 SerpAPI');
+    return serpapiSearch(company);
+  }
+  // 都没有，用 Mock
+  console.log('[Search] 未配置搜索 API，使用 Mock 数据');
+  return mockSearchFallback(company);
+}
+
+// 搜索查询配置（用于参考）
+export function getSearchQueries(company: string) {
+  return [
+    { category: "公司融资动态", queries: [`${company} 融资`, `${company} 投资方`, `${company} IPO`] },
+    { category: "公司舆情", queries: [`${company} 裁员`, `${company} 口碑`, `${company} 脉脉`] },
+    { category: "业务动态", queries: [`${company} 新产品`, `${company} 业务调整`, `${company} 最新动态`] },
+    { category: "招聘动态", queries: [`${company} 招聘`, `${company} 岗位 拉勾`, `${company} 岗位 Boss直聘`] }
   ];
 }

@@ -65,15 +65,16 @@ npm run dev
 
 本项目支持多个 AI 提供商，你可以在网页设置中自由选择：
 
-| 提供商 | 模型 | 获取 API Key |
-|--------|------|-------------|
-| **DeepSeek** | deepseek-chat | [platform.deepseek.com](https://platform.deepseek.com/) |
-| **OpenAI** | GPT-4 | [platform.openai.com](https://platform.openai.com/api-keys) |
-| **Claude** | claude-3-sonnet | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
-| **Moonshot** | moonshot-v1-8k | [platform.moonshot.cn](https://platform.moonshot.cn/) |
-| **Gemini** | gemini-1.5-pro | [Google AI Studio](https://aistudio.google.com/app/apikey) |
+| 提供商 | 模型 | 获取 API Key | 备注 |
+|--------|------|-------------|------|
+| **DeepSeek** | deepseek-chat | [platform.deepseek.com](https://platform.deepseek.com/) | 推荐，免费额度大 |
+| **OpenAI** | GPT-4o | [platform.openai.com](https://platform.openai.com/api-keys) | |
+| **Claude** | claude-3-sonnet | [console.anthropic.com](https://console.anthropic.com/settings/keys) | |
+| **Moonshot** | moonshot-v1-8k | [platform.moonshot.cn](https://platform.moonshot.cn/) | |
+| **Gemini** | gemini-1.5-pro | [Google AI Studio](https://aistudio.google.com/app/apikey) | |
+| **Perplexity** | sonar-pro | [perplexity.ai](https://www.perplexity.ai/settings/api) | ⭐ 内置搜索功能 |
 
-> 💡 **提示**：大多数提供商都有免费额度，足够日常使用。在网页上点击「设置」即可随时切换提供商。
+> 💡 **提示**：大多数提供商都有免费额度，足够日常使用。**Perplexity** 支持内置搜索，分析更实时。在网页上点击「设置」即可随时切换提供商。
 
 ## 📁 项目结构
 
@@ -93,7 +94,7 @@ job-analyzer/
 │   └── lib/
 │       ├── hooks.ts            # 状态管理 hooks
 │       ├── prompts.ts          # AI Prompt 模板
-│       └── search.ts           # 搜索服务 (mock)
+│       └── search.ts           # 搜索服务（Mock/SerpAPI/Bing）
 ├── .env.example                # 环境变量示例
 └── README.md
 ```
@@ -102,7 +103,7 @@ job-analyzer/
 
 - **框架**: [Next.js 16](https://nextjs.org/) + [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **样式**: [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-- **AI**: 支持 DeepSeek, OpenAI, Claude, Moonshot, Gemini via [Vercel AI SDK](https://sdk.vercel.ai/)
+- **AI**: 支持 DeepSeek, OpenAI, Claude, Moonshot, Gemini, Perplexity via [Vercel AI SDK](https://sdk.vercel.ai/)
 - **图表**: [Recharts](https://recharts.org/)
 - **文档解析**: [Mammoth](https://github.com/mwilliamson/mammoth.js)
 
@@ -110,23 +111,25 @@ job-analyzer/
 
 ### 接入真实搜索（可选）
 
-默认使用模拟搜索数据，可替换为真实搜索 API：
+默认使用模拟搜索数据，自动检测并切换真实搜索 API：
 
-编辑 `src/lib/search.ts`，接入以下服务之一：
-- [SerpAPI](https://serpapi.com/)
-- [Tavily](https://tavily.com/)
-- [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api)
+编辑 `.env.local`，配置以下任一搜索服务：
+- [SerpAPI](https://serpapi.com/) - 免费 100次/月，推荐
+- [Bing Search API](https://www.microsoft.com/en-us/bing/apis/bing-web-search-api) - 免费 1000次/月
+- [Perplexity](https://www.perplexity.ai/settings/api) - **推荐**，内置搜索，无需额外配置
+
+使用 Perplexity API 时，AI 会自动联网搜索最新信息，无需额外配置搜索服务。
 
 ### 切换 AI 提供商
 
 无需修改代码，直接在网页上切换：
 
 1. 点击右上角 **⚙️ 设置** 按钮
-2. 选择你喜欢的 AI 提供商（DeepSeek / OpenAI / Claude / Moonshot / Gemini）
+2. 选择你喜欢的 AI 提供商（DeepSeek / OpenAI / Claude / Moonshot / Gemini / Perplexity）
 3. 输入对应的 API Key
 4. 点击保存即可使用
 
-API Key 和提供商偏好会保存在浏览器本地存储中，切换时自动生效。
+API Key 按提供商独立保存，切换时自动加载对应 Key。
 
 ## 📸 截图
 
