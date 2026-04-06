@@ -3,7 +3,9 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FCsylvielab%2Fjob-analyzer)
 
 💡 为什么选择 JobInsight AI？
+
 “投递机会是有限的，别把子弹浪费在不适合的‘坑’里。”
+
 JobAnalyzer 是一款AI 驱动的智能求职分析工具，帮助求职者深度了解目标岗位，做出最佳职业决策。
 
 ⚡️ 零 Prompt 负担：内置专家级分析链路，粘贴 JD 即可获得深度内参，无需再调优长串指令。深度还原并推断岗位释出背景、岗位日常工作和岗位发展前景。
