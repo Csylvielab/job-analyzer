@@ -233,13 +233,20 @@ export default function Home() {
     }
   }, [content]);
 
-  // 回到顶部按钮显示/隐藏
+  // 回到顶部按钮显示/隐藏（监听 window 和侧边栏滚动）
   useEffect(() => {
+    const sidebar = document.querySelector('[class*="overflow-y-auto"]') as HTMLElement;
     const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 400);
+      const windowScrolled = window.scrollY > 400;
+      const sidebarScrolled = sidebar ? sidebar.scrollTop > 200 : false;
+      setShowBackToTop(windowScrolled || sidebarScrolled);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (sidebar) sidebar.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (sidebar) sidebar.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // 等待时间计时器
@@ -391,7 +398,16 @@ export default function Home() {
       const response = await fetch('/api/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
-        body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
+        body: JSON.stringify({
+          resume: resumeContent,
+          jobText: jobText,
+          jobInfo: {
+            company: parsedInfo.company,
+            position: parsedInfo.position,
+            jd: jobText,
+            analyzedContent: content || undefined,
+          },
+        }),
         signal: abortControllerRef.current.signal,
       });
 
@@ -485,7 +501,16 @@ export default function Home() {
       const response = await fetch('/api/optimize-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-API-Key': getCurrentApiKey() || '', 'X-AI-Provider': localStorage.getItem('jobanalyzer_ai_provider') || 'deepseek', 'X-Search-Api-Type': getSearchApiType(), 'X-Search-Api-Key': getSearchApiKey() },
-        body: JSON.stringify({ resume: resumeContent, jobText: jobText }),
+        body: JSON.stringify({
+          resume: resumeContent,
+          jobText: jobText,
+          jobInfo: {
+            company: parsedInfo.company,
+            position: parsedInfo.position,
+            jd: jobText,
+            analyzedContent: content || undefined,
+          },
+        }),
         signal: abortControllerRef.current.signal,
       });
 
@@ -1907,7 +1932,14 @@ export default function Home() {
       {/* 回到顶部按钮 */}
       {showBackToTop && (
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => {
+            const sidebar = document.querySelector('[class*="overflow-y-auto"]') as HTMLElement;
+            if (sidebar && sidebar.scrollTop > 200) {
+              sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
           className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white shadow-lg shadow-[#667eea]/30 hover:shadow-xl hover:shadow-[#667eea]/50 hover:-translate-y-1 active:translate-y-0 transition-all duration-200 flex items-center justify-center"
         >
           <ArrowUp className="h-5 w-5" strokeWidth={1.5} />

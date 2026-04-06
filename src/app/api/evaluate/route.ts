@@ -25,13 +25,27 @@ function getAIProvider(apiKey: string, provider: string) {
   }
 }
 
-// 构建简历评估 prompt
+// 构建简历评估 prompt（支持已解析的岗位信息和已分析的深度报告）
 function buildEvaluatePrompt(resume: string, jobInfo: {
   company: string;
   position: string;
   jd: string;
+  analyzedContent?: string;
 }): string {
-  return `请作为一名在相关行业拥有超过20年经验的资深招聘经理，严格依据以下职位的要求，对候选人的简历进行深度评估。
+  const analyzedSection = jobInfo.analyzedContent
+    ? `
+
+## 🔍 深度岗位分析报告（已生成）
+
+以下是该岗位的深度分析结果，评估时请结合该报告进行综合判断：
+
+${jobInfo.analyzedContent}
+
+---
+`
+    : '';
+
+  return `请作为一名在相关行业拥有超过20年经验的资深招聘经理，严格依据以下职位的要求，对候选人的简历进行深度评估。${analyzedSection}
 
 ## 职位信息
 
@@ -105,8 +119,10 @@ export async function POST(req: Request) {
     // 获取 API Key from header
     const apiKey = req.headers.get('X-API-Key') || '';
     const aiProvider = req.headers.get('X-AI-Provider') || 'deepseek';
-    // 获取用户输入
-    const { resume, jobText } = await req.json();
+    // 获取用户输入（jobInfo 为前端岗位分析后传入的已解析信息）
+    const { resume, jobText, jobInfo } = await req.json() as { resume: string; jobText?: string; jobInfo?: { company?: string; position?: string; jd?: string; analyzedContent?: string } };
+
+    const rawJobText = jobText || '';
 
     if (!resume || !resume.trim()) {
       return Response.json(
@@ -115,7 +131,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!jobText || !jobText.trim()) {
+    if (!rawJobText && !jobInfo?.jd) {
       return Response.json(
         { error: '请输入岗位信息' },
         { status: 400 }
@@ -124,20 +140,22 @@ export async function POST(req: Request) {
 
     console.log('[API] 收到简历评估请求');
     console.log('[API] 简历长度:', resume.length);
-    console.log('[API] 岗位信息长度:', jobText.length);
+    console.log('[API] 岗位信息长度:', (rawJobText || jobInfo?.jd || '').length);
 
-    // 简单解析岗位信息（提取公司和职位）
-    const companyMatch = jobText.match(/公司名称[：:]\s*(.+)/);
-    const positionMatch = jobText.match(/岗位名称[：:]\s*(.+)/);
+    // 优先使用前端已解析的岗位信息，否则做简单正则提取
+    const companyMatch = rawJobText.match(/公司名称[：:]\s*(.+)/);
+    const positionMatch = rawJobText.match(/岗位名称[：:]\s*(.+)/);
 
-    const company = companyMatch?.[1]?.trim() || '未知公司';
-    const position = positionMatch?.[1]?.trim() || '未知职位';
+    const company = jobInfo?.company || companyMatch?.[1]?.trim() || '未知公司';
+    const position = jobInfo?.position || positionMatch?.[1]?.trim() || '未知职位';
+    const jd = jobInfo?.jd || rawJobText;
 
     // 构建评估 prompt
     const userPrompt = buildEvaluatePrompt(resume, {
       company,
       position,
-      jd: jobText,
+      jd,
+      analyzedContent: jobInfo?.analyzedContent,
     });
 
     // 选择模型

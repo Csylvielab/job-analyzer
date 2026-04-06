@@ -40,13 +40,30 @@ const OPTIMIZE_SYSTEM_PROMPT = `你是一位资深的职业顾问和简历优化
 - 格式统一：每句经历前的总结控制在4-6个字
 - **客观中立，拒绝迎合**：优化建议必须基于简历实际内容，不为讨好用户而刻意美化。若简历确有短板，如实指出；若确有亮点，精准提炼。永远说真话，不说用户想听的话。`;
 
-// 构建简历优化 prompt
-function buildOptimizePrompt(resume: string, jobText: string): string {
-  return `请根据以下目标岗位JD，对我的简历进行分析和优化。
+// 构建简历优化 prompt（支持已解析的岗位信息和已分析的深度报告）
+function buildOptimizePrompt(resume: string, jobText: string, jobInfo?: { company?: string; position?: string; jd?: string; analyzedContent?: string }): string {
+  const jdContent = jobInfo?.jd || jobText;
+  const header = jobInfo?.company || jobInfo?.position
+    ? `**公司：** ${jobInfo.company || '未知公司'}\n**岗位：** ${jobInfo.position || '未知职位'}\n\n`
+    : '';
+  const analyzedSection = jobInfo?.analyzedContent
+    ? `
+
+## 🔍 深度岗位分析报告（已生成）
+
+以下是该岗位的深度分析结果，优化时请结合该报告进行针对性调整：
+
+${jobInfo.analyzedContent}
+
+---
+`
+    : '';
+
+  return `请根据以下目标岗位JD，对我的简历进行分析和优化。${analyzedSection}
 
 ## 目标岗位JD
 
-${jobText}
+${header}${jdContent}
 
 ---
 
@@ -113,7 +130,9 @@ export async function POST(req: Request) {
   try {
     const apiKey = req.headers.get('X-API-Key') || '';
     const aiProvider = req.headers.get('X-AI-Provider') || 'deepseek';
-    const { resume, jobText } = await req.json();
+    const { resume, jobText, jobInfo } = await req.json() as { resume: string; jobText?: string; jobInfo?: { company?: string; position?: string; jd?: string; analyzedContent?: string } };
+
+    const rawJobText = jobText || '';
 
     if (!resume || !resume.trim()) {
       return Response.json(
@@ -122,7 +141,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!jobText || !jobText.trim()) {
+    if (!rawJobText && !jobInfo?.jd) {
       return Response.json(
         { error: '请输入岗位信息' },
         { status: 400 }
@@ -131,9 +150,9 @@ export async function POST(req: Request) {
 
     console.log('[API] 收到简历优化请求');
     console.log('[API] 简历长度:', resume.length);
-    console.log('[API] 岗位信息长度:', jobText.length);
+    console.log('[API] 岗位信息长度:', (rawJobText || jobInfo?.jd || '').length);
 
-    const userPrompt = buildOptimizePrompt(resume, jobText);
+    const userPrompt = buildOptimizePrompt(resume, rawJobText, jobInfo);
 
     // 流式返回优化结果
     const encoder = new TextEncoder();

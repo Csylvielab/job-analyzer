@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "JobInsight AI 助手",
+  "version": "1.0.0",
+  "description": "智能提取招聘网站 JD 并进行 AI 深度分析，助你求职避坑",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.zhipin.com/*",
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.zhipin.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}
