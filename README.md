@@ -12,13 +12,7 @@ JobAnalyzer 是一款AI 驱动的智能求职分析工具，帮助求职者深�
 
 🔒 隐私主权归你：支持接入个人 API，所有分析数据本地化处理，简历隐私绝不外流。
 
-🧠 选择困难症的【PK 模式】：
-
-·背书比拼：哪份履历对下一跳跳槽大厂更有利？
-
-·成长对撞：哪个岗位的技能栈曲线更陡峭、更有护城河？
-
-·红旗警示：基于行业常态与舆情，谁的加班风险和业务波动更高？
+🧠 选择困难症的【PK 模式】：AI 帮你对比「哪个岗位的技能栈曲线更陡峭、更有护城河」「哪个加班风险更高」
 
 对比完再投，让你的每一次点击，都拥有 80% 以上的胜算。
 
@@ -102,23 +96,12 @@ npm run dev
 
 ```
 job-analyzer/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── analyze/        # 岗位分析 API
-│   │   │   ├── compare/        # 岗位对比 API
-│   │   │   ├── evaluate/       # 简历评估 API
-│   │   │   └── optimize-resume/# 简历优化 API
-│   │   ├── page.tsx            # 主界面
-│   │   └── layout.tsx          # 根布局
-│   ├── components/
-│   │   └── ui/                 # shadcn/ui 组件
-│   └── lib/
-│       ├── hooks.ts            # 状态管理 hooks
-│       ├── prompts.ts          # AI Prompt 模板
-│       └── search.ts           # 搜索服务（Mock/SerpAPI/Bing）
-├── .env.example                # 环境变量示例
-└── README.md
+src/
+  ├── app/api/           # 核心 API（分析/对比/评估/优化）
+  ├── app/page.tsx       # 主界面
+  └── lib/
+      ├── prompts.ts     # AI Prompt 模板
+      └── search.ts      # 搜索服务
 ```
 
 ## 🛠️ 技术栈
@@ -157,6 +140,9 @@ job-analyzer/
 4. 点击保存即可使用
 
 API Key 按提供商独立保存，切换时自动加载对应 Key。
+
+## 🔎 效果示例
+<img width="2246" height="1089" alt="屏幕截图 2026-04-06 233933" src="https://github.com/user-attachments/assets/aa53f4fb-1f3f-4598-8a24-38bb291aff2a" />
 
 
 ## 🤝 贡献
