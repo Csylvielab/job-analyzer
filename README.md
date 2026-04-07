@@ -55,7 +55,9 @@ JobAnalyzer 是一款AI 驱动的智能求职分析工具，帮助求职者深�
 只需 3 步，拥有自己的求职分析工具：
 
 **Step 1.** 点击上方 "Deploy with Vercel" 按钮
+
 **Step 2.** 用 GitHub 登录 Vercel（免费）
+
 **Step 3.** 部署完成后，打开网址 → 点击右上角「设置」→ 填入 API Key → 开箱即用
 
 > 💡 **零门槛**：不需要懂代码，不需要服务器，Vercel 免费套餐完全够用。
