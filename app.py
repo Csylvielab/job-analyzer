@@ -258,7 +258,7 @@ async def analyze_job(job: JobDetail):
         return result
 
     except Exception as e:
-        print.error(f"分析失败: {e}")
+        print(f"分析失败: {e}")
         raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
 
 
@@ -299,7 +299,7 @@ async def analyze_raw(request: Request):
         )
 
     except Exception as e:
-        print.error(f"处理失败: {e}")
+        print(f"处理失败: {e}")
         raise HTTPException(status_code=400, detail=f"数据格式错误: {str(e)}")
 
 

@@ -18,31 +18,27 @@
 3. 点击「加载已解压的扩展程序」
 4. 选择本目录 `chrome-extension/`
 
-### 2. 安装依赖
+### 2. 启动 JobAnalyzer 前端
+
+插件需要配合 JobAnalyzer 网页使用：
 
 ```bash
-# 安装 Python 后端依赖
-pip install fastapi uvicorn pydantic
-
-# 或使用 uv
-uv pip install fastapi uvicorn pydantic
+# 克隆并启动前端
+git clone https://github.com/Csylvielab/job-analyzer.git
+cd job-analyzer
+npm install
+npm run dev
 ```
 
-### 3. 启动后端服务
+访问 `http://localhost:3000`，在右上角「设置」中配置你的 AI API Key。
 
-```bash
-cd C:\Users\ccyan\code\job-analyzer
-python app.py
-```
+### 3. 使用插件
 
-后端启动后会监听 `http://127.0.0.1:8000`
-
-### 4. 使用插件
-
-1. 打开 Chrome，访问 [Boss直聘](https://www.zhipin.com)
-2. 进入任意职位详情页
-3. 页面右侧「立即沟通」按钮旁边会出现 **⚡ AI 深度分析** 按钮
-4. 点击按钮，等待分析结果
+1. 确保 JobAnalyzer 前端已运行（localhost:3000）
+2. 打开 Chrome，访问 [Boss直聘](https://www.zhipin.com)
+3. 进入任意职位详情页
+4. 页面右侧「立即沟通」按钮旁边会出现 **⚡ AI 深度分析** 按钮
+5. 点击按钮，等待分析结果
 
 ## 项目结构
 
@@ -58,42 +54,11 @@ chrome-extension/
 └── icons/             # 插件图标 (需自行添加)
 ```
 
-## 本地测试
-
-### 测试后端 API
-
-```bash
-# 健康检查
-curl http://127.0.0.1:8000/health
-
-# 测试分析接口 (模拟)
-curl -X POST http://127.0.0.1:8000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jobTitle": "Python 后端开发",
-    "company": "字节跳动",
-    "salary": "25-40K",
-    "jobDescription": "熟练掌握 Python、Django、MySQL，熟悉 Docker，有良好的编码习惯。"
-  }'
-```
-
-### 预期返回
-
-```json
-{
-  "score": 75,
-  "keywords": ["Python", "Django", "MySQL", "Docker"],
-  "warnings": [],
-  "analysis": "技术岗位：关注技术栈匹配度、代码规范、技术成长空间...",
-  "suggestions": "简历建议突出以下关键词：Python, Django..."
-}
-```
-
 ## 注意事项
 
-1. **CORS 问题**: 插件配置了 `host_permissions` 允许跨域请求本地后端
-2. **页面兼容性**: 目前针对 Boss直聘 优化，其他招聘网站可能需要调整选择器
-3. **后端依赖**: 使用前请确保 Python 后端已启动
+1. **前端依赖**: 插件依赖 JobAnalyzer 前端运行在 `localhost:3000`，使用前请确保前端已启动
+2. **CORS 问题**: 插件已配置 `host_permissions` 允许跨域请求本地前端
+3. **页面兼容性**: 目前针对 Boss直聘 优化，其他招聘网站可能需要调整选择器
 
 ## 扩展到其他网站
 
