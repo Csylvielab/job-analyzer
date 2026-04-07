@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "JobInsight AI - 智能求职分析平台",
+  title: "JobAnalyzer AI - 智能求职分析平台",
   description: "AI驱动的岗位分析与简历优化平台",
 };
 

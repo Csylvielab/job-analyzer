@@ -1,12 +1,12 @@
 /**
- * JobInsight AI - Background Service Worker
+ * JobAnalyzer AI - Background Service Worker
  * 处理扩展生命周期事件
  */
 
 // 监听安装事件
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    console.log('[JobInsight AI] Extension installed');
+    console.log('[JobAnalyzer AI] Extension installed');
 
     // 设置默认配置
     chrome.storage.local.set({
@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       enabled: true
     });
   } else if (details.reason === 'update') {
-    console.log('[JobInsight AI] Extension updated');
+    console.log('[JobAnalyzer AI] Extension updated');
   }
 });
 
@@ -49,8 +49,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url && tab.url.includes('zhipin.com')) {
     // 可以在这里做一些初始化
-    console.log('[JobInsight AI] Tab updated:', tab.url);
+    console.log('[JobAnalyzer AI] Tab updated:', tab.url);
   }
 });
 
-console.log('[JobInsight AI] Background service worker started');
+console.log('[JobAnalyzer AI] Background service worker started');

@@ -1,5 +1,5 @@
 """
-JobInsight AI - FastAPI Backend Wrapper
+JobAnalyzer AI - FastAPI Backend Wrapper
 为 Chrome 插件提供 Web API 接口
 
 运行方式:
@@ -17,7 +17,7 @@ import re
 import json
 
 app = FastAPI(
-    title="JobInsight AI API",
+    title="JobAnalyzer AI API",
     description="智能求职分析后端 API",
     version="1.0.0"
 )
@@ -203,7 +203,7 @@ def generate_suggestions(job: JobDetail, keywords: List[str]) -> str:
 async def root():
     """API 根路径"""
     return {
-        "name": "JobInsight AI API",
+        "name": "JobAnalyzer AI API",
         "version": "1.0.0",
         "docs": "/docs",
         "analyze": "POST /analyze"
@@ -253,7 +253,7 @@ async def analyze_job(job: JobDetail):
             suggestions=suggestions
         )
 
-        print(f"[JobInsight] 分析完成: {job.jobTitle} @ {job.company} | 评分: {score}")
+        print(f"[JobAnalyzer] 分析完成: {job.jobTitle} @ {job.company} | 评分: {score}")
 
         return result
 
@@ -270,7 +270,7 @@ async def analyze_raw(request: Request):
     """
     try:
         data = await request.json()
-        print(f"[JobInsight] 收到原始数据: {json.dumps(data, ensure_ascii=False)[:200]}")
+        print(f"[JobAnalyzer] 收到原始数据: {json.dumps(data, ensure_ascii=False)[:200]}")
 
         # 尝试构建 JobDetail
         job = JobDetail(
@@ -307,7 +307,7 @@ async def analyze_raw(request: Request):
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("JobInsight AI Backend")
+    print("JobAnalyzer AI Backend")
     print("API 文档: http://127.0.0.1:8000/docs")
     print("=" * 50)
 

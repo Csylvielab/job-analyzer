@@ -854,7 +854,7 @@ export default function Home() {
                 <Sparkles className="h-5 w-5 text-primary-foreground" strokeWidth={1.5} />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-foreground tracking-tight">JobInsight AI</h1>
+                <h1 className="text-lg font-bold text-foreground tracking-tight">JobAnalyzer AI</h1>
                 <p className="text-xs text-muted-foreground">智能求职分析平台</p>
               </div>
             </div>

@@ -1,5 +1,5 @@
 /**
- * JobInsight AI - Content Script
+ * JobAnalyzer AI - Content Script
  * 负责从 zhipin.com 提取 JD 并注入分析按钮
  */
 
@@ -23,13 +23,13 @@
     },
     // 按钮样式
     BUTTON_TEXT: 'AI 深度分析',
-    BUTTON_CLASS: 'jobinsight-ai-btn'
+    BUTTON_CLASS: 'jobanalyzer-ai-btn'
   };
 
   // 日志工具
   const log = {
-    info: (...args) => console.log('[JobInsight AI]', ...args),
-    error: (...args) => console.error('[JobInsight AI Error]', ...args)
+    info: (...args) => console.log('[JobAnalyzer AI]', ...args),
+    error: (...args) => console.error('[JobAnalyzer AI Error]', ...args)
   };
 
   /**
@@ -251,12 +251,12 @@
    */
   function createResultPanel(result, error = null) {
     // 移除已存在的面板
-    const existing = document.getElementById('jobinsight-result-panel');
+    const existing = document.getElementById('jobanalyzer-result-panel');
     if (existing) existing.remove();
 
     // 创建面板容器
     const panel = document.createElement('div');
-    panel.id = 'jobinsight-result-panel';
+    panel.id = 'jobanalyzer-result-panel';
 
     let bodyContent = '';
 
@@ -337,7 +337,7 @@
         <div class="ji-header">
           <div class="ji-title">
             <span class="ji-logo">⚡</span>
-            <span>JobInsight AI 分析结果</span>
+            <span>JobAnalyzer AI 分析结果</span>
           </div>
           <button class="ji-close" id="ji-close-btn">&times;</button>
         </div>
@@ -345,7 +345,7 @@
           ${bodyContent}
         </div>
         <div class="ji-footer">
-          <span class="ji-powered">Powered by JobInsight AI</span>
+          <span class="ji-powered">Powered by JobAnalyzer AI</span>
         </div>
       </div>
     `;
@@ -373,18 +373,18 @@
    * 创建加载状态面板
    */
   function createLoadingPanel(extractedInfo = '') {
-    const existing = document.getElementById('jobinsight-result-panel');
+    const existing = document.getElementById('jobanalyzer-result-panel');
     if (existing) existing.remove();
 
     const panel = document.createElement('div');
-    panel.id = 'jobinsight-result-panel';
+    panel.id = 'jobanalyzer-result-panel';
     panel.innerHTML = `
       <div class="ji-overlay"></div>
       <div class="ji-panel">
         <div class="ji-header">
           <div class="ji-title">
             <span class="ji-logo">⚡</span>
-            <span>JobInsight AI 分析中...</span>
+            <span>JobAnalyzer AI 分析中...</span>
           </div>
           <button class="ji-close" id="ji-close-btn">&times;</button>
         </div>
@@ -540,7 +540,7 @@
    * 初始化
    */
   function init() {
-    log.info('JobInsight AI Content Script 已加载');
+    log.info('JobAnalyzer AI Content Script 已加载');
 
     // 等待页面完全加载后注入按钮
     if (document.readyState === 'complete') {

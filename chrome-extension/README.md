@@ -1,4 +1,4 @@
-# JobInsight AI - Chrome 插件
+# JobAnalyzer AI - Chrome 插件
 
 智能求职分析 Chrome 插件，从 Boss直聘 等招聘网站提取 JD 并进行 AI 深度分析。
 

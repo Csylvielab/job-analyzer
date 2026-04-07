@@ -1,5 +1,5 @@
 /**
- * JobInsight AI - Popup Script
+ * JobAnalyzer AI - Popup Script
  */
 
 document.addEventListener('DOMContentLoaded', () => {

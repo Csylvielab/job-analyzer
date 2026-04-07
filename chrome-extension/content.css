@@ -1,10 +1,10 @@
 /**
- * JobInsight AI - Content Script Styles
+ * JobAnalyzer AI - Content Script Styles
  * 结果展示面板样式
  */
 
 /* 重置与隔离 */
-#jobinsight-result-panel * {
+#jobanalyzer-result-panel * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -12,7 +12,7 @@
 }
 
 /* 面板容器 */
-#jobinsight-result-panel {
+#jobanalyzer-result-panel {
   position: fixed;
   top: 0;
   left: 0;
@@ -23,12 +23,12 @@
   transition: opacity 0.3s ease;
 }
 
-#jobinsight-result-panel.ji-active {
+#jobanalyzer-result-panel.ji-active {
   opacity: 1;
 }
 
 /* 遮罩层 */
-#jobinsight-result-panel .ji-overlay {
+#jobanalyzer-result-panel .ji-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -39,7 +39,7 @@
 }
 
 /* 面板主体 */
-#jobinsight-result-panel .ji-panel {
+#jobanalyzer-result-panel .ji-panel {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -56,12 +56,12 @@
   flex-direction: column;
 }
 
-#jobinsight-result-panel.ji-active .ji-panel {
+#jobanalyzer-result-panel.ji-active .ji-panel {
   transform: translate(-50%, -50%) scale(1);
 }
 
 /* 头部 */
-#jobinsight-result-panel .ji-header {
+#jobanalyzer-result-panel .ji-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -70,7 +70,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-#jobinsight-result-panel .ji-title {
+#jobanalyzer-result-panel .ji-title {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -79,11 +79,11 @@
   color: #fff;
 }
 
-#jobinsight-result-panel .ji-logo {
+#jobanalyzer-result-panel .ji-logo {
   font-size: 20px;
 }
 
-#jobinsight-result-panel .ji-close {
+#jobanalyzer-result-panel .ji-close {
   width: 32px;
   height: 32px;
   border: none;
@@ -98,19 +98,19 @@
   justify-content: center;
 }
 
-#jobinsight-result-panel .ji-close:hover {
+#jobanalyzer-result-panel .ji-close:hover {
   background: rgba(255, 100, 100, 0.3);
 }
 
 /* 内容区 */
-#jobinsight-result-panel .ji-body {
+#jobanalyzer-result-panel .ji-body {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
 }
 
 /* 加载状态 */
-#jobinsight-result-panel .ji-loading {
+#jobanalyzer-result-panel .ji-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -120,18 +120,18 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-#jobinsight-result-panel .ji-loading p {
+#jobanalyzer-result-panel .ji-loading p {
   margin-top: 16px;
   font-size: 15px;
 }
 
-#jobinsight-result-panel .ji-loading-tip {
+#jobanalyzer-result-panel .ji-loading-tip {
   font-size: 13px !important;
   color: rgba(255, 255, 255, 0.4) !important;
   margin-top: 8px !important;
 }
 
-#jobinsight-result-panel .ji-spinner {
+#jobanalyzer-result-panel .ji-spinner {
   width: 48px;
   height: 48px;
   border: 3px solid rgba(255, 255, 255, 0.1);
@@ -145,25 +145,25 @@
 }
 
 /* 错误状态 */
-#jobinsight-result-panel .ji-error {
+#jobanalyzer-result-panel .ji-error {
   text-align: center;
   padding: 40px 20px;
 }
 
-#jobinsight-result-panel .ji-error-icon {
+#jobanalyzer-result-panel .ji-error-icon {
   font-size: 48px;
   margin-bottom: 16px;
 }
 
-#jobinsight-result-panel .ji-error-title {
+#jobanalyzer-result-panel .ji-error-title {
   font-size: 18px;
   font-weight: 600;
   color: #ff6b6b;
   margin-bottom: 12px;
 }
 
-#jobinsight-result-panel .ji-error-msg,
-#jobinsight-result-panel .ji-error-reason {
+#jobanalyzer-result-panel .ji-error-msg,
+#jobanalyzer-result-panel .ji-error-reason {
   color: rgba(255, 255, 255, 0.85);
   background: rgba(255, 107, 107, 0.1);
   border: 1px solid rgba(255, 107, 107, 0.3);
@@ -174,7 +174,7 @@
   text-align: left;
 }
 
-#jobinsight-result-panel .ji-error-hint {
+#jobanalyzer-result-panel .ji-error-hint {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
   background: rgba(251, 191, 36, 0.08);
@@ -184,7 +184,7 @@
   text-align: left;
 }
 
-#jobinsight-result-panel .ji-error-hint code {
+#jobanalyzer-result-panel .ji-error-hint code {
   background: rgba(255, 255, 255, 0.1);
   padding: 2px 8px;
   border-radius: 4px;
@@ -192,7 +192,7 @@
 }
 
 /* 摘要区 */
-#jobinsight-result-panel .ji-summary {
+#jobanalyzer-result-panel .ji-summary {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -203,7 +203,7 @@
   margin-bottom: 20px;
 }
 
-#jobinsight-result-panel .ji-score-circle {
+#jobanalyzer-result-panel .ji-score-circle {
   --score: 0;
   width: 80px;
   height: 80px;
@@ -220,7 +220,7 @@
   flex-shrink: 0;
 }
 
-#jobinsight-result-panel .ji-score-circle::before {
+#jobanalyzer-result-panel .ji-score-circle::before {
   content: '';
   position: absolute;
   width: 64px;
@@ -229,7 +229,7 @@
   border-radius: 50%;
 }
 
-#jobinsight-result-panel .ji-score-value {
+#jobanalyzer-result-panel .ji-score-value {
   position: relative;
   font-size: 22px;
   font-weight: 700;
@@ -237,7 +237,7 @@
   line-height: 1;
 }
 
-#jobinsight-result-panel .ji-score-label {
+#jobanalyzer-result-panel .ji-score-label {
   position: relative;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.5);
@@ -245,24 +245,24 @@
   letter-spacing: 0.5px;
 }
 
-#jobinsight-result-panel .ji-summary-text h3 {
+#jobanalyzer-result-panel .ji-summary-text h3 {
   font-size: 16px;
   font-weight: 600;
   color: #fff;
   margin-bottom: 6px;
 }
 
-#jobinsight-result-panel .ji-summary-text p {
+#jobanalyzer-result-panel .ji-summary-text p {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
 }
 
 /* 区域区块 */
-#jobinsight-result-panel .ji-section {
+#jobanalyzer-result-panel .ji-section {
   margin-bottom: 20px;
 }
 
-#jobinsight-result-panel .ji-section h4 {
+#jobanalyzer-result-panel .ji-section h4 {
   font-size: 14px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
@@ -273,13 +273,13 @@
 }
 
 /* 标签 */
-#jobinsight-result-panel .ji-tags {
+#jobanalyzer-result-panel .ji-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-#jobinsight-result-panel .ji-tag {
+#jobanalyzer-result-panel .ji-tag {
   padding: 6px 12px;
   background: rgba(102, 126, 234, 0.15);
   border: 1px solid rgba(102, 126, 234, 0.3);
@@ -289,22 +289,22 @@
   transition: all 0.2s;
 }
 
-#jobinsight-result-panel .ji-tag:hover {
+#jobanalyzer-result-panel .ji-tag:hover {
   background: rgba(102, 126, 234, 0.25);
   transform: translateY(-1px);
 }
 
 /* 预警区 */
-#jobinsight-result-panel .ji-warnings h4 {
+#jobanalyzer-result-panel .ji-warnings h4 {
   color: #fbbf24;
 }
 
-#jobinsight-result-panel .ji-warnings ul {
+#jobanalyzer-result-panel .ji-warnings ul {
   list-style: none;
   padding: 0;
 }
 
-#jobinsight-result-panel .ji-warnings li {
+#jobanalyzer-result-panel .ji-warnings li {
   position: relative;
   padding: 10px 14px;
   padding-left: 32px;
@@ -316,7 +316,7 @@
   margin-bottom: 8px;
 }
 
-#jobinsight-result-panel .ji-warnings li::before {
+#jobanalyzer-result-panel .ji-warnings li::before {
   content: '⚠️';
   position: absolute;
   left: 12px;
@@ -325,17 +325,17 @@
 }
 
 /* 建议区 */
-#jobinsight-result-panel .ji-suggestions h4 {
+#jobanalyzer-result-panel .ji-suggestions h4 {
   color: #34d399;
 }
 
-#jobinsight-result-panel .ji-suggestions .ji-analysis {
+#jobanalyzer-result-panel .ji-suggestions .ji-analysis {
   background: rgba(52, 211, 153, 0.08);
   border: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 /* 分析文本 */
-#jobinsight-result-panel .ji-analysis {
+#jobanalyzer-result-panel .ji-analysis {
   padding: 14px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
@@ -347,39 +347,39 @@
 }
 
 /* 页脚 */
-#jobinsight-result-panel .ji-footer {
+#jobanalyzer-result-panel .ji-footer {
   padding: 12px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   text-align: center;
 }
 
-#jobinsight-result-panel .ji-powered {
+#jobanalyzer-result-panel .ji-powered {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.3);
 }
 
 /* 滚动条 */
-#jobinsight-result-panel .ji-body::-webkit-scrollbar {
+#jobanalyzer-result-panel .ji-body::-webkit-scrollbar {
   width: 6px;
 }
 
-#jobinsight-result-panel .ji-body::-webkit-scrollbar-track {
+#jobanalyzer-result-panel .ji-body::-webkit-scrollbar-track {
   background: transparent;
 }
 
-#jobinsight-result-panel .ji-body::-webkit-scrollbar-thumb {
+#jobanalyzer-result-panel .ji-body::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 3px;
 }
 
-#jobinsight-result-panel .ji-body::-webkit-scrollbar-thumb:hover {
+#jobanalyzer-result-panel .ji-body::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
 /* ============ 注入按钮样式 ============ */
 
 /* AI 分析按钮 */
-.jobinsight-ai-btn {
+.jobanalyzer-ai-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -396,24 +396,24 @@
   margin-left: 8px;
 }
 
-.jobinsight-ai-btn:hover {
+.jobanalyzer-ai-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
-.jobinsight-ai-btn:active {
+.jobanalyzer-ai-btn:active {
   transform: translateY(0);
 }
 
-.jobinsight-ai-btn:disabled {
+.jobanalyzer-ai-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 /* 如果页面有自己的按钮样式，覆盖一下 */
-.btn-container .jobinsight-ai-btn,
-.sider-bar .jobinsight-ai-btn {
+.btn-container .jobanalyzer-ai-btn,
+.sider-bar .jobanalyzer-ai-btn {
   margin-left: 0;
   margin-top: 8px;
   width: 100%;
